@@ -1,0 +1,75 @@
+# Linked List
+Merge sorted linked list
+Detect cycle in linked list
+In-place Reversal of a Linked List
+
+
+# Tree
+Breadth-first search iterative
+Depth-first search recursive
+Depth-first search iterative
+Tree min depth
+Tree max depth
+Tree balance
+Invert binary tree
+Trie
+
+
+# Two Pointers
+Binary search
+Fast and Slow Pointers
+Sliding Window
+Merge Intervals
+K-way Merge
+
+
+# Graph (Matrix Traversal)
+Flood fill
+Number of islands
+Clone Graph
+Sparse Vector multiplication
+Matrix multiplication
+Djikstra
+Minimum spanng tree
+Topological sort
+
+
+# Misc
+Binary search
+Cyclic Sort
+Two Heaps
+Subsets
+Modified Binary Search
+Top "K" Elements
+Bitwise XOR
+Backtracking
+
+
+# Dynamic programming
+Top-down (recursive - memoization)
+Bottom-up (iterative - tabulation)
+Combination sum
+Permutations
+
+
+# Geometry
+Convex Hull
+Dot product
+Cross product
+
+# Data-structures and Algorithms
+Union-Find
+Segment Tree
+LRU Cache
+Monotonic Stack
+Circular Buffer
+Hungarian algorithm
+Moore voting algorithm
+
+
+# Sort
+Bucket sort
+Insertion sort
+Bubble sort
+Merge sort
+Quick sort

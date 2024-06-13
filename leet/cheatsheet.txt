@@ -1,0 +1,298 @@
+# Two pointers - one input, opposite ends
+
+  def fn(arr):
+    ans = 0
+    left = 0
+    right = len(arr) - 1
+
+    while right <= left:
+      if CONDITION:
+        left += 1
+      else:
+        right -= 1
+
+    return ans
+
+
+# Two pointers - two inputs, exhaust both
+
+  def fn(arr1, arr2):
+    ans = 0
+    i = 0
+    j = 0
+
+    while i < len(arr1) and j < len(arr2):
+      if CONDITION:
+        i += 1
+      else:
+        j += 1
+
+    while i < len(arr1):
+      # DO LOGIC
+      i += 1
+
+    while j < len(arr2):
+      # DO LOGIC
+      j += 1
+
+
+# Sliding Window
+
+  def fn(arr):
+    ans = 0
+    left = 0
+    curr = 0
+
+    for right in range(len(arr)):
+      # Do logic here to add arr[right] to curr
+
+      while WINDOW_CONDITION_BROKEN:
+        # Remove arr[left] from curr
+        left += 1
+
+      # Update ans
+
+    return ans
+
+
+# Build a Prefix
+
+  def fn(arr):
+    prefix = [arr[0]]
+    for i in range(1, len(arr)):
+      prefix.append(prefix[-1] + arr[i])
+
+    return prefix
+
+
+# Linked List - Fast and Slow pointer
+
+  def fn(head):
+    slow = head
+    fast = head
+    ans = 0
+
+    while fast and fast.next:
+      # Do logic
+      slow = slow.next
+      fast = fast.next.next
+
+    return ans
+
+
+# Reverse Linked List
+
+  def fn(head):
+    curr = head
+    prev = None
+
+    while curr:
+      next_node = curr.next
+      curr.next = prev
+      prev = curr
+      curr = next_node
+
+    return prev
+
+
+# Find number of subarrays that fit an exact criteria
+
+  def fn(arr, k):
+    counts = collections.defaultdict(int)
+    counts[0] = 1
+    ans = 0
+    curr = 0
+
+    for num in arr:
+      # DO LOGIC TO CHANGE CURR
+      ans += counts[curr - k]
+      counts[curr] += 1
+
+    return ans
+
+
+# Monotonic increasing stack
+
+  def fn(arr):
+    stack = []
+    ans = 0
+
+    for num in arr:
+      # FOR MONOTONIC DECREASING, JUST FLIP the > to <
+      while stack and stack[-1] > num:
+        # DO LOGIC
+        stack.pop()
+      stack.append(num)
+
+    return ans
+
+
+# Recursive DFS
+
+  def dfs(root):
+    if not root:
+      return
+
+    ans = 0
+    # DO LOGIC
+    dfs(root.left)
+    dfs(root.right)
+    return ans
+
+
+# Iterative DFS
+
+  def dfs(root):
+    stack = [root]
+
+    while len(stack):
+      node = stack.pop()
+
+      # DO LOGIC
+      if node.left:
+        stack.append(node.left)
+      if node.right:
+        stack.append(node.right)
+
+    return ans
+
+
+# Iterative BFS
+
+  def bfs(root):
+    queue = [root]
+
+    while len(queue):
+      node = queue.pop(0)
+
+      # DO LOGIC
+      if node.left:
+        queue.append(node.left)
+      if node.right:
+        queue.append(node.right)
+
+    return ans
+
+
+# Graph Recursive DFS
+
+  def graph_recursive_dfs(graph):
+    seen = {START_NODE}
+
+    def dfs(node):
+      ans = 0
+      for neighbour in graph[node]:
+        if neighbour not in seen:
+          seen.add(neighbour)
+          ans += dfs(neighbour)
+      return dfs
+
+    return dfs(START_NODE)
+
+
+# Graph Iterative DFS
+
+  def graph_iterative_dfs(graph):
+    stack = [START_NODE]
+    seen = {START_NODE}
+    ans = 0
+
+    while len(stack):
+      node = stack.pop()
+
+      # DO LOGIC
+      for neighbour in graph[node]:
+        if neighbour not in seen:
+          seen.add(neighbour)
+          stack.appennd(neighbour)
+
+    return ans
+
+
+# Graph BFS
+
+  def graph_bfs(graph):
+    queue = [START_NODE]
+    seen = {START_NODE}
+    ans = 0
+
+    while len(stack):
+      node = queue.pop(0)
+
+      # DO LOGIC
+      for neighbour in graph[node]:
+        if neighbour not in seen:
+          seen.add(neighbour)
+          queue.appennd(neighbour)
+
+    return ans
+
+
+# Find Top K Elements with Heap
+
+  def fn(arr, k):
+    heap = []
+    for num in arr:
+      heapq.heappush(heap, (CRITERIA, num))
+      if len(heap) > k:
+        heapq.heappop(heap)
+
+    return [num for num in heap]
+
+
+# Binary Search
+
+  def fn(arr, target):
+    left = 0
+    right = len(arr) - 1
+
+    while left <= right:
+      mid = left + int((right - left) // 2)
+
+      if arr[mid] == target:
+        return mid
+      elif arr[mid] > target:
+        right = mid - 1
+      else:
+        left = mid + 1
+
+    return left
+
+
+# Binary Search - Duplicate elements, left-most insertion point
+
+
+  def fn(arr, target):
+    left = 0
+    right = len(arr)
+
+    while left < right:
+      mid = (left + right) // 2
+
+      if arr[mid] >= target:
+        right = mid
+      else:
+        left = mid + 1
+
+    return left
+
+
+# Binary Search - Duplicate elements, right-most insertion point
+
+
+  def fn(arr, target):
+    left = 0
+    right = len(arr)
+
+    while left < right:
+      mid = (left + right) // 2
+
+      if arr[mid] > target:
+        right = mid
+      else:
+        left = mid + 1
+
+    return right
+
+
+# Binary Sear

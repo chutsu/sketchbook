@@ -1,0 +1,125 @@
+# Use two pointers when:
+
+- Data is organized in a linear structure  like an array, string or linked list
+- Problem constraints involve finding paired elements
+- Data has some order relevant to the problem
+- Naive solution involves nested loops (quadratic complexity)
+
+The two pointers move towards a target by closing in from different
+eneds of the data structure. This explots the existing order in the
+data without needing nested loops.
+
+
+# Common Two Pointer Patterns
+
+## Left and Right Pointer
+
+- Time complexity: O(N)
+- Space complexity: O(1)
+
+This pattern is used when the data has symmetry or requires comparing elements
+from each end. For example:
+
+- Check if a string is a palindrome
+- Check if a linked list is a palindrome
+
+Example:
+
+  def check_palindrome(word):
+    left = 0
+    right = len(word) - 1
+
+    while left < right:
+      if word[left] != word[right]:
+        return False
+      left += 1
+      right -= 1
+    return True
+
+
+## Fast and Slow Pointer
+
+- Time complexity: O(N)
+- Space complexity: O(1)
+
+This pattern uses two pointers moving at different speeds through the data
+structure. Example questions include:
+
+- Detect if a linked list has a cycle
+- Find the middle node of a linked list
+
+  # Detect cycle in linked list
+  def detect_cycle(head):
+      slow, fast = head, head
+      while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+          return True # cycle exists
+      return False
+
+
+## Window Pattern
+
+- Time complexity: O(N)
+- Space complexity: O(1)
+
+This pattern constraints a "window" of elements between pointers. Example
+questions include:
+
+- Find maximum sum subarray of size k
+- Longest substring with k distinct characters
+
+  # Find max sum subarray of size k
+  def max_subarray(arr, k):
+    left = 0
+    curr_sum = 0
+
+    for right in range(len(arr)):
+      curr_sum += arr[right]
+      if right >= k-1:
+        max_sum = max(max_sum, curr_sum)
+        curr_sum -= arr[left]
+        left += 1
+
+    return max_sum
+
+
+# Marge Arrays
+
+In this pattern, you are given 2 arrays / lists to process using individual
+pointers. Examples:
+
+- Merge two sorted arrays
+- Find intersection of two unsorted arrays
+
+def merge_sorted_arrays(nums1, nums2):
+  # Set pointers for both arrays
+  p1 = 0
+  p2 = 0
+
+  # Initialize result array
+  result = []
+
+  # Compare elements at pointers and add smaller to result
+  while p1 < len(nums1) and p2 < len(nums2):
+    if nums1[p1] < nums2[p2]:
+      result.append(nums1[p1])
+      p1 += 1
+    else:
+      result.append(nums2[p2])
+      p2 += 1
+
+  # Add remaining elements from nums1
+  while p1 < len(nums1):
+    result.append(nums1[p1])
+    p1 += 1
+
+  # Add remaining elements from nums2
+  while p2 < len(nums2):
+    result.append(nums2[p2])
+    p2 += 1
+
+  return result
+
+
