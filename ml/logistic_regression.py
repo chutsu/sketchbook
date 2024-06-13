@@ -4,7 +4,7 @@ Logistic Regression
 ===================
 
 Logistic regression is a statistical method used for modeling the probability
-of a binary outcome (i.e., a dependent variable with two possible outcomes,
+of a **binary outcome** (i.e., a dependent variable with two possible outcomes,
 such as success/failure, yes/no, or 0/1) based on one or more predictor
 variables (independent variables). It is a type of regression analysis used
 when the dependent variable is categorical.
@@ -42,7 +42,7 @@ y1 = np.random.normal(4, 1, N)
 
 # Combine into a single dataset
 X = np.vstack((np.hstack((x0, x1)), np.hstack((y0, y1)))).T
-y = np.hstack((np.zeros(N), np.ones(N)))
+Y = np.hstack((np.zeros(N), np.ones(N)))
 
 # Add a column of ones to X to account for the bias term (intercept)
 X = np.hstack((np.ones((X.shape[0], 1)), X))
@@ -53,22 +53,22 @@ def sigmoid(z):
   return 1 / (1 + exp(-z))
 
 
-def cost_function(X, y, theta):
-  m = len(y)
+def cost_function(X, Y, theta):
+  m = len(Y)
   h = sigmoid(X @ theta)
   epsilon = 1e-5
-  cost = (-1 / m) * (y @ log(h + epsilon) + (1 - y) @ log(1 - h + epsilon))
+  cost = (-1 / m) * (Y @ log(h + epsilon) + (1 - Y) @ log(1 - h + epsilon))
   return cost
 
 
-def gradient_descent(X, y, theta, gamma, num_iter):
-  m = len(y)
+def gradient_descent(X, Y, theta, gamma, num_iter):
+  m = len(Y)
   cost_history = []
 
   for i in range(num_iter):
     h = sigmoid(X @ theta)
-    theta -= (gamma / m) * X.T @ (h - y)
-    cost = cost_function(X, y, theta)
+    theta -= (gamma / m) * X.T @ (h - Y)
+    cost = cost_function(X, Y, theta)
     cost_history.append(cost)
 
   return theta, cost_history
@@ -80,7 +80,7 @@ gamma = 0.1
 num_iter = 1000
 
 # Train the model
-theta, cost_history = gradient_descent(X, y, theta, gamma, num_iter)
+theta, cost_history = gradient_descent(X, Y, theta, gamma, num_iter)
 
 # Step 3: Plot the Decision Boundary
 plt.figure(figsize=(10, 6))
