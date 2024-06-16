@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# cd docs && make html
+python3 scripts/pynote.py \
+  --input_path ml/linear_discriminant_analysis.py \
+  --output_path ml/linear_discriminant_analysis.html
+
 # python3 leet/archive/problem-decompress_image_bunny.py
 # python3 leet/note-dynamic_programming.py
 # python3 leet/note-fenwick_tree.py
@@ -103,6 +108,6 @@ set -e
 # python3 leet/sandbox.py
 
 # python3 ml/mnist.py
-# python3 ml/lda.py
+# python3 ml/linear_discriminant_analysis.py
 # python3 ml/linear_regression.py
-python3 ml/logistic_regression.py
+# python3 ml/logistic_regression.py
