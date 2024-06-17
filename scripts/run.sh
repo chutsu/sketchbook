@@ -2,9 +2,9 @@
 set -e
 
 # cd docs && make html
-python3 scripts/pynote.py \
-  --input_path ml/linear_discriminant_analysis.py \
-  --output_path ml/linear_discriminant_analysis.html
+# python3 scripts/pynote.py \
+#   --input_path ml/linear_discriminant_analysis.py \
+#   --output_path ml/linear_discriminant_analysis.html
 
 # python3 leet/archive/problem-decompress_image_bunny.py
 # python3 leet/note-dynamic_programming.py
