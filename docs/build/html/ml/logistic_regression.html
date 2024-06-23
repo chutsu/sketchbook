@@ -7,6 +7,7 @@
   <title>Logistic Regression &mdash; sketchbook  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=92ae9c4e" />
 
   
   <!--[if lt IE 9]>
@@ -22,7 +23,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Linear Discriminant Analysis (LDA)" href="linear_discriminant_analysis.html" /> 
+    <link rel="prev" title="Bayes Classifier" href="linear_discriminant_analysis.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,7 +48,7 @@
               <p class="caption" role="heading"><span class="caption-text">Machine Learning:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="linear_regression.html">Linear Regression</a></li>
-<li class="toctree-l1"><a class="reference internal" href="linear_discriminant_analysis.html">Linear Discriminant Analysis (LDA)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linear_discriminant_analysis.html">Bayes Classifier</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Logistic Regression</a></li>
 </ul>
 
@@ -86,18 +87,18 @@ when the dependent variable is categorical.</p>
 logarithm of the odds of the dependent event occurring.</p>
 <p>The logit function is expressed as:</p>
 <div class="math notranslate nohighlight">
-\[logit(p) = log(p / 1 - p)\]</div>
-<p>where p is the probability of the event occurring.</p>
-<p>The logistic regression model is formulated as:</p>
+\[\text{logit}(p) = \log\left(\dfrac{p}{1 - p}\right)\]</div>
+<p>where p is the probability of the event occurring. The logistic regression
+model is formulated as:</p>
 <div class="math notranslate nohighlight">
-\[logit(p) = beta_0 + beta_1 * x_1 + beta_2 * x_2 + \dots + beta_k * x_k\]</div>
+\[\text{logit}(p) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k\]</div>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="linear_discriminant_analysis.html" class="btn btn-neutral float-left" title="Linear Discriminant Analysis (LDA)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="linear_discriminant_analysis.html" class="btn btn-neutral float-left" title="Bayes Classifier" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
