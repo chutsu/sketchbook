@@ -24,12 +24,15 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
-    'sphinx_exec_code',
+    'sphinxcontrib.bibtex',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 exec_code_working_dir = '.'
+
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = 'plain'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

@@ -14,12 +14,11 @@ The logit function is expressed as:
 
 .. math::
 
-  logit(p) = log(p / 1 - p)
+  \text{logit}(p) = \log\left(\dfrac{p}{1 - p}\right)
 
-where p is the probability of the event occurring.
-
-The logistic regression model is formulated as:
+where p is the probability of the event occurring. The logistic regression
+model is formulated as:
 
 .. math::
 
-  logit(p) = beta_0 + beta_1 * x_1 + beta_2 * x_2 + \dots + beta_k * x_k
+  \text{logit}(p) = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k

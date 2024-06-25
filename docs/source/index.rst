@@ -11,5 +11,6 @@ Chris's sketchbook
    :caption: Machine Learning:
 
    ml/linear_regression.rst
-   ml/linear_discriminant_analysis.rst
+   ml/bayes_classifier.rst
    ml/logistic_regression.rst
+   ml/attention.rst
