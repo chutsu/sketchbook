@@ -4,24 +4,6 @@ from numpy import exp
 from numpy import log
 import matplotlib.pylab as plt
 
-# Step 1: Generate Synthetic Data
-np.random.seed(0)
-N = 50  # Sample size
-
-# Class 0
-x0 = np.random.normal(2, 1, N)
-y0 = np.random.normal(2, 1, N)
-
-# Class 1
-x1 = np.random.normal(4, 1, N)
-y1 = np.random.normal(4, 1, N)
-
-# Combine into a single dataset
-X = np.vstack((np.hstack((x0, x1)), np.hstack((y0, y1)))).T
-Y = np.hstack((np.zeros(N), np.ones(N)))
-
-# Add a column of ones to X to account for the bias term (intercept)
-X = np.hstack((np.ones((X.shape[0], 1)), X))
 
 
 # Step 2: Implement Logistic Regression
@@ -49,32 +31,52 @@ def gradient_descent(X, Y, theta, gamma, num_iter):
 
   return theta, cost_history
 
+if __name__ == "__main__":
+  # Step 1: Generate Synthetic Data
+  np.random.seed(0)
+  N = 50  # Sample size
 
-# Initialize parameters
-theta = np.zeros(X.shape[1])
-gamma = 0.1
-num_iter = 1000
+  # Class 0
+  x0 = np.random.normal(2, 1, N)
+  y0 = np.random.normal(2, 1, N)
 
-# Train the model
-theta, cost_history = gradient_descent(X, Y, theta, gamma, num_iter)
+  # Class 1
+  x1 = np.random.normal(4, 1, N)
+  y1 = np.random.normal(4, 1, N)
 
-# Step 3: Plot the Decision Boundary
-plt.figure(figsize=(10, 6))
+  # Combine into a single dataset
+  X = np.vstack((np.hstack((x0, x1)), np.hstack((y0, y1)))).T
+  Y = np.hstack((np.zeros(N), np.ones(N)))
 
-# Plot the data points
-plt.scatter(x0, y0, color='red', label='Class 0')
-plt.scatter(x1, y1, color='blue', label='Class 1')
+  # Add a column of ones to X to account for the bias term (intercept)
+  X = np.hstack((np.ones((X.shape[0], 1)), X))
 
-# Plot the decision boundary
-x_values = [np.min(X[:, 1]), np.max(X[:, 1])]
-y_values = -(theta[0] + np.dot(theta[1], x_values)) / theta[2]
-plt.plot(x_values, y_values, label='Decision Boundary')
 
-# Add labels and legend
-plt.xlabel('Feature 1')
-plt.ylabel('Feature 2')
-plt.legend()
-plt.title('Logistic Regression Decision Boundary')
+  # Initialize parameters
+  theta = np.zeros(X.shape[1])
+  gamma = 0.1
+  num_iter = 1000
 
-# Show the plot
-plt.show()
+  # Train the model
+  theta, cost_history = gradient_descent(X, Y, theta, gamma, num_iter)
+
+  # Step 3: Plot the Decision Boundary
+  plt.figure(figsize=(10, 6))
+
+  # Plot the data points
+  plt.scatter(x0, y0, color='red', label='Class 0')
+  plt.scatter(x1, y1, color='blue', label='Class 1')
+
+  # Plot the decision boundary
+  x_values = [np.min(X[:, 1]), np.max(X[:, 1])]
+  y_values = -(theta[0] + np.dot(theta[1], x_values)) / theta[2]
+  plt.plot(x_values, y_values, label='Decision Boundary')
+
+  # Add labels and legend
+  plt.xlabel('Feature 1')
+  plt.ylabel('Feature 2')
+  plt.legend()
+  plt.title('Logistic Regression Decision Boundary')
+
+  # Show the plot
+  plt.show()

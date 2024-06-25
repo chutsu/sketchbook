@@ -66,9 +66,10 @@ if __name__ == "__main__":
   slope = -slope_vec[0] / slope_vec[1]
 
   # Intercept
-  intercept_partial = log(pi_hat_2 / pi_hat_1) + 0.5 * (
-      mu_hat_1.T @ cov_inv @ mu_hat_1) - 0.5 * (mu_hat_2.T @ cov_inv @ mu_hat_2)
-  intercept = intercept_partial / slope_vec[1]
+  intercept = log(pi_hat_2 / pi_hat_1)
+  intercept += 0.5 * (mu_hat_1.T @ cov_inv @ mu_hat_1)
+  intercept -= 0.5 * (mu_hat_2.T @ cov_inv @ mu_hat_2)
+  intercept = intercept / slope_vec[1]
 
   # plotting
   plt.figure()
