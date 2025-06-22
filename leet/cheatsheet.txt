@@ -293,6 +293,3 @@
         left = mid + 1
 
     return right
-
-
-# Binary Sear

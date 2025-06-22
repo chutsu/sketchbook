@@ -1,4 +1,5 @@
 import torch
+import torch.utils.data
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -32,7 +33,7 @@ class Model(nn.Module):
     return output
 
 
-def train(config, model, device, train_loader, optimizer, epoch):
+def train(model, device, train_loader, optimizer, epoch):
   log_interval = 10
   model.train()
 
@@ -92,9 +93,9 @@ if __name__ == '__main__':
   train_kwargs = {'batch_size': config.batch_size}
   test_kwargs = {'batch_size': config.test_batch_size}
   if config.use_cuda:
-    cuda_kwargs = {'num_workers': 1, 'pin_memory': True, 'shuffle': True}
-    train_kwconfig.update(cuda_kwargs)
-    test_kwconfig.update(cuda_kwargs)
+    cuda_kwargs = {'num_workers': 1, 'pin_memory': True, 'shuffle': 1}
+    train_kwargs.update(cuda_kwargs)
+    test_kwargs.update(cuda_kwargs)
 
   # Load data
   tf = transforms.Compose([
@@ -111,7 +112,7 @@ if __name__ == '__main__':
   optimizer = optim.Adadelta(model.parameters(), lr=config.lr)
   scheduler = StepLR(optimizer, step_size=1, gamma=config.gamma)
   for epoch in range(1, config.epochs + 1):
-    train(config, model, device, train_loader, optimizer, epoch)
+    train(model, device, train_loader, optimizer, epoch)
     test(model, device, test_loader)
     scheduler.step()
 

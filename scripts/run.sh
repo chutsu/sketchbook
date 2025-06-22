@@ -7,6 +7,7 @@ set -e
 #   --output_path ml/linear_discriminant_analysis.html
 
 # python3 leet/archive/problem-decompress_image_bunny.py
+# python3 leet/note-array.py
 # python3 leet/note-dynamic_programming.py
 # python3 leet/note-fenwick_tree.py
 # python3 leet/note-kdtree.py
@@ -40,6 +41,7 @@ set -e
 # python3 leet/problem-design_circular_deque.py
 # python3 leet/problem-diameter_of_binary_tree.py
 # python3 leet/problem-dot_product_of_two_sparse_vectors.py
+# python3 leet/problem-duplicate_zeros.py
 # python3 leet/problem-flood_fill.py
 # python3 leet/problem-gas_station.py
 # python3 leet/problem-house_robber.py
@@ -89,6 +91,7 @@ set -e
 # python3 leet/problem-simulate_robot.py
 # python3 leet/problem-sparse_matrix_multiplication.py
 # python3 leet/problem-spiral_matrix.py
+# python3 leet/problem-squares_of_a_sorted_array.py
 # python3 leet/problem-subarray_product_less_than_k.py
 # python3 leet/problem-subarray_sum_equals_k.py
 # python3 leet/problem-subsets.py
@@ -111,3 +114,6 @@ set -e
 # python3 ml/linear_discriminant_analysis.py
 # python3 ml/linear_regression.py
 # python3 ml/logistic_regression.py
+# python3 -m unittest ml.superpoint.TestSyntheticDataset.test_draw_stripes
+# python3 -m unittest ml.superpoint.TestSyntheticDataset.test_synthetic_dataset
+python3 -m ml.superpoint
