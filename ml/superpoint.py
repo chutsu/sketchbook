@@ -3,8 +3,10 @@ import copy
 import unittest
 
 import cv2
+from tqdm import tqdm
 import numpy as np
 from numpy.typing import NDArray
+import matplotlib.pylab as plt
 
 import torch
 import torch.nn as nn
@@ -893,10 +895,12 @@ class SyntheticDataset(Dataset):
     index = random_state.randint(0, len(self.draw_funcs))
     points = self.draw_funcs[index](image)
 
-    label = np.zeros(self.image_shape, dtype=np.float32)
+    label_shape = (1, self.image_shape[0], self.image_shape[1])
+    label = np.zeros(label_shape, dtype=np.float32)
+    label[0, :, :] = np.zeros(self.image_shape, dtype=np.float32)  # background
+    # label[1, :, :] = np.zeros(self.image_shape, dtype=np.float32)  # keypoints
     for p in points:
-      label[p[0], p[1]] = 1.0
-    label = label[np.newaxis, :, :]
+      label[0, p[1], p[0]] = 1.0
 
     image.astype(np.float32)
     image = image / 255.0
@@ -998,12 +1002,20 @@ class TestSyntheticDataset(unittest.TestCase):
     assert len(points) > 0
 
   def test_synthetic_dataset(self):
-    image_shape = (200, 200)
+    image_shape = (240, 180)
     max_samples = 100
     dataset = SyntheticDataset(image_shape, max_samples)
-    image, points = dataset[0]
-    cv2.imshow("Image", image)
-    cv2.waitKey()
+    image, target = dataset[0]
+
+    fig = plt.figure(figsize=(10, 6))
+    plt.subplot(121)
+    plt.imshow(image[0])
+    plt.subplot(122)
+    plt.imshow(target[1])
+    plt.show()
+
+    # cv2.imshow("Image", image[0])
+    # cv2.waitKey()
 
 
 ###############################################################################
@@ -1012,50 +1024,77 @@ class TestSyntheticDataset(unittest.TestCase):
 
 
 class MagicPoint(nn.Module):
-  def __init__(self):
+  def __init__(self, input_channels=1):
     super(MagicPoint, self).__init__()
 
-    # yapf:disable
+    # Encoder (VGG-style, downsamples by 8x)
     self.encoder = nn.Sequential(
-        nn.Conv2d(1, 64, 3, padding=1), nn.ReLU(),
-        nn.Conv2d(64, 64, 3, padding=1), nn.ReLU(),
-        nn.MaxPool2d(2),
-        nn.Conv2d(64, 64, 3, padding=1), nn.ReLU(),
-        nn.Conv2d(64, 64, 3, padding=1), nn.ReLU(),
-        nn.MaxPool2d(2),
-        nn.Conv2d(64, 128, 3, padding=1), nn.ReLU(),
-        nn.Conv2d(128, 128, 3, padding=1), nn.ReLU(),
-        nn.MaxPool2d(2),
-        nn.Conv2d(128, 128, 3, padding=1), nn.ReLU(),
+        # Phase 1
+        nn.Conv2d(input_channels, 64, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.MaxPool2d(kernel_size=2, stride=2),  # H/2, W/2
+        # Phase 2
+        nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(128, 128, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.MaxPool2d(kernel_size=2, stride=2),  # H/4, W/4
+        # Phase 3
+        nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.MaxPool2d(kernel_size=2, stride=2),  # H/8, W/8
     )
-    # yapf:enable
 
-    # Predicts heatmap of shape (H/8 x W/8) x 65
-    # The "65" includes 64 possible cells and a dustbin (no keypoint)
-    self.detector_head = nn.Conv2d(128, 65, 1)
+    # Detector Head (upsamples back to original resolution and outputs 2
+    # channels) This is a simplified version; the original paper has a more
+    # complex 65-channel output that is then reshaped and softmaxed. For direct
+    # pixel-wise CrossEntropyLoss, 2 channels (background/keypoint) is common.
+    self.detector_head = nn.Sequential(
+        nn.Conv2d(256, 256, 3, stride=1, padding=1),
+        nn.ReLU(inplace=True),
+        nn.ConvTranspose2d(256, 128, 4, stride=2, padding=1),  # H/4, W/4
+        nn.ReLU(inplace=True),
+        nn.ConvTranspose2d(128, 64, 4, stride=2, padding=1),  # H/2, W/2
+        nn.ReLU(inplace=True),
+        nn.ConvTranspose2d(64, 2, 4, stride=2, padding=1)  # H, W (2 classes)
+    )
 
   def forward(self, x):
-    # Encoder
-    x = self.encoder(x)  # x: (B, 1, H, W)
-    logits = self.detector_head(x)  # (B, 65, H/8, W/8)
+    x = self.encoder(x)
 
-    # Decoder
-    # -- logits: (B, 65, Hc, Wc)
-    # Remove dustbin and softmax over the first 64 cell classes
-    heatmap = F.softmax(logits[:, :-1, :, :], dim=1)  # (B, 64, Hc, Wc)
-    # -- Reshape 64 channels to 8x8 grid per cell and upsample
-    B, _, Hc, Wc = heatmap.shape
-    heatmap = heatmap.reshape(B, 1, 8, 8, Hc, Wc)
-    heatmap = heatmap.permute(0, 1, 4, 2, 5, 3).reshape(B, 1, Hc * 8, Wc * 8)
+    x = F.softmax(x, dim=1)
+    x= x[:, 64, :, :]
+    x = 1.0 - x
+    x = x.unsqueeze(1)
 
-    return heatmap  # (B, 1, H, W)
+    # Upsample to original image resolution H x W.
+    # original_H = x.shape[2] * 8
+    # original_W = x.shape[3] * 8
+
+    # Use interpolation to resize. 'bilinear' is common for heatmaps.
+    # align_corners=False is generally recommended for feature maps to avoid
+    # off-by-one pixel issues.
+    # upsampled_point_probability = F.interpolate(
+    #     point_probability_hc_wc,
+    #     size=(original_H, original_W),
+    #     mode='bilinear',
+    #     align_corners=False
+    # )
+
+    # output_H_W_1 = upsampled_point_probability.squeeze(0).permute(1, 2, 0)
+
+    logits = self.detector_head(x)
+    return logits
 
 
 def train_magic_point():
   # Hyperparameters
-  batch_size = 32
-  image_shape = (1, 240, 320)
-  num_epochs = 50
+  batch_size = 10
+  num_epochs = 10
   learning_rate = 1e-3
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -1064,8 +1103,8 @@ def train_magic_point():
   max_samples = 100
   train_data = SyntheticDataset(image_shape, max_samples)
   # test_data = SyntheticDataset(image_shape, max_samples)
-  train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
-  # test_loader = DataLoader(test_data, batch_size=64, shuffle=True)
+  train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+  # test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True)
 
   # Initialize model and optimizer
   model = MagicPoint().to(device)
@@ -1074,19 +1113,22 @@ def train_magic_point():
   # Training loop
   loss_func = nn.CrossEntropyLoss()
   for epoch in range(num_epochs):
-    # model.train()
+    print(f"Epoch {epoch + 1} / {num_epochs}")
+    model.train()
 
     total_loss = 0
-    for _, (images, labels) in enumerate(train_loader):
+    total_size = 0
+    images = None
+    target = None
+    output = None
+    for _, (images, labels) in enumerate(tqdm(train_loader)):
       images = images.to(device)
       target = labels.to(device)
 
       # Forward pass
-      output = model(images)  # (B, 65, Hc, Wc)
+      output = model(images)
 
       # Compute loss
-      print(output.shape)
-      print(target.shape)
       loss = loss_func(output, target)
 
       # Backpropagation
@@ -1094,10 +1136,23 @@ def train_magic_point():
       loss.backward()
       optimizer.step()
 
+      # Stats
       total_loss += loss.item()
+      total_size += output.shape[0]
 
-    avg_loss = total_loss / 100
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.4f}")
+    print(f"{output.shape=}")
+    fig = plt.figure(figsize=(10, 6))
+    plt.subplot(131)
+    plt.imshow(images[0].detach().cpu().numpy()[0])
+    plt.subplot(132)
+    plt.imshow(target[0].detach().cpu().numpy()[1])
+    plt.subplot(133)
+    plt.imshow(output[0].detach().cpu().numpy()[1])
+    plt.show()
+
+    # Print stats
+    # avg_loss = total_loss / total_size
+    print(f"Loss: {total_loss:e}")
 
 
 if __name__ == "__main__":
