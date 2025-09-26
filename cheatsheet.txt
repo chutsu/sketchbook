@@ -1,0 +1,84 @@
+###############################################################################
+# PYTHON                                                                      #
+###############################################################################
+
+  # Parse command line arguments
+  parser = argparse.ArgumentParser()
+  parser.add_argument("counter", help="help text", type=int, default=1)
+  args = parser.parse_args()
+
+  # Matplotlib
+  # -- Figure size in pixels
+  width_px, height_px = 800, 600
+  fig = plt.figure(figsize=(width_px/dpi, height_px/dpi), dpi=dpi)
+
+
+###############################################################################
+# BASH                                                                        #
+###############################################################################
+
+  Logical operators
+  -----------------
+  &&  AND (short-circuiting)  [[ -f "file1" && -f "file2" ]]
+  !   NOT                     [ ! -d "mydir" ]
+
+  Numeric comparisons
+  ------------------
+  -eq  Is equal to                  [ "$a" -eq "$b" ]
+  -ne  Is not equal to              [ "$a" -ne "$b" ]
+  -gt  Is greater than              [ "$a" -gt "$b" ]
+  -ge  Is greater than or equal to  [ "$a" -ge "$b" ]
+  -lt  Is less than                 [ "$a" -lt "$b" ]
+  -le  Is less than or equal to     [ "$a" -le "$b" ]
+
+  String comparisons
+  ------------------
+  = or ==  Is equal to                            [ "$str1" = "$str2" ]
+  !=       Is not equal to                        [ "$str1" != "$str2" ]
+  >        Is greater than (lexicographically)    [[ "$str1" > "$str2" ]]
+  <        Is less than (lexicographically)       [[ "$str1" < "$str2" ]]
+  -z       String is empty (zero length)          [ -z "$str" ]
+  -n       String is not empty (non-zero length)  [ -n "$str" ]
+  =~       Matches a regular expression           [[ "$str" =~ ^[0-9]+$ ]]
+
+  File comparisons
+  ----------------
+  -e  File exists                     [ -e "myfile.txt" ]
+  -f  Is a regular file               [ -f "myfile.txt" ]
+  -d  Is a directory                  [ -d "mydir/" ]
+  -s  File exists and is not empty    [ -s "myfile.txt" ]
+  -r  File is readable by the user    [ -r "myfile.txt" ]
+  -w  File is writable by the user    [ -w "myfile.txt" ]
+  -x  File is executable by the user  [ -x "myscript.sh" ]
+
+
+###############################################################################
+# GIT                                                                         #
+###############################################################################
+
+  # Rebase against master / main
+  git checkout <branch>
+  git fetch origin
+  git rebase origin/main
+  git push --force origin <branch>
+
+
+###############################################################################
+# CMAKE                                                                       #
+###############################################################################
+
+  # Uninstall (WARNING!: The following does not remove empty directories)
+  cd <path to build dir>
+  xargs rm < install_manifest.txt
+
+###############################################################################
+# DOCKER                                                                      #
+###############################################################################
+
+
+###############################################################################
+# PROFILING                                                                   #
+###############################################################################
+
+  perf record -g --call-graph=dwarf <executable>
+  perf annotate --stdio > profile.txt
