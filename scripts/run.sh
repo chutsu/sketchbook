@@ -116,4 +116,9 @@ set -e
 # python3 ml/logistic_regression.py
 # python3 -m unittest ml.superpoint.TestSyntheticDataset.test_draw_stripes
 # python3 -m unittest ml.superpoint.TestSyntheticDataset.test_synthetic_dataset
-python3 -m ml.superpoint
+# python3 -m ml.superpoint
+
+# python3 -m ml.superpoint
+
+# pip3 install -r requirements.txt
+python3 -m robotics.note-icp
