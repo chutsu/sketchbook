@@ -1,5 +1,6 @@
 # Misc
-data
+data/MNIST
+data/bunny
 
 # Python
 __pycache__/
