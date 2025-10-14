@@ -1,4 +1,37 @@
 ###############################################################################
+# NVIM                                                                        #
+###############################################################################
+
+  # Search and replace in all files
+  :grep foo             # Search for foo in all files
+  :grep foo -g '!bar/'  # Search for foo in all files whilst exlude bar dir
+  :cfdo %s/search/replace/gc | update | bd  # Search and replace in all files
+
+###############################################################################
+# GIT                                                                         #
+###############################################################################
+
+  # Rebase against master / main
+  git checkout <branch>
+  git fetch origin
+  git rebase origin/main
+  git push --force origin <branch>
+
+
+###############################################################################
+# CMAKE                                                                       #
+###############################################################################
+
+  # Uninstall (WARNING!: The following does not remove empty directories)
+  cd <path to build dir>
+  xargs rm < install_manifest.txt
+
+###############################################################################
+# DOCKER                                                                      #
+###############################################################################
+
+
+###############################################################################
 # PYTHON                                                                      #
 ###############################################################################
 
@@ -12,6 +45,12 @@
   width_px, height_px = 800, 600
   fig = plt.figure(figsize=(width_px/dpi, height_px/dpi), dpi=dpi)
 
+###############################################################################
+# PROFILING                                                                   #
+###############################################################################
+
+  perf record -g --call-graph=dwarf <executable>
+  perf annotate --stdio > profile.txt
 
 ###############################################################################
 # BASH                                                                        #
@@ -51,34 +90,3 @@
   -w  File is writable by the user    [ -w "myfile.txt" ]
   -x  File is executable by the user  [ -x "myscript.sh" ]
 
-
-###############################################################################
-# GIT                                                                         #
-###############################################################################
-
-  # Rebase against master / main
-  git checkout <branch>
-  git fetch origin
-  git rebase origin/main
-  git push --force origin <branch>
-
-
-###############################################################################
-# CMAKE                                                                       #
-###############################################################################
-
-  # Uninstall (WARNING!: The following does not remove empty directories)
-  cd <path to build dir>
-  xargs rm < install_manifest.txt
-
-###############################################################################
-# DOCKER                                                                      #
-###############################################################################
-
-
-###############################################################################
-# PROFILING                                                                   #
-###############################################################################
-
-  perf record -g --call-graph=dwarf <executable>
-  perf annotate --stdio > profile.txt
