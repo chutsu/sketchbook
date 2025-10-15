@@ -67,6 +67,20 @@ def get_loop_start(head):
   return n2
 
 
+def reverse_list(head):
+  curr = head
+  prev = None
+
+  while curr:
+    next_node = curr.next
+    curr.next = prev
+
+    prev = curr
+    curr = next_node
+
+  return prev
+
+
 def print_list(head):
   node = head
   while node:
