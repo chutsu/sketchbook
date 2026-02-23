@@ -9,7 +9,9 @@ set -e
 # python3 leet/archive/problem-decompress_image_bunny.py
 # python3 leet/note-array.py
 # python3 leet/note-dynamic_programming.py
+# python3 leet/note-dijkstra_algorithm.py
 # python3 leet/note-fenwick_tree.py
+# python3 leet/note-kahns_algorithm.py
 # python3 leet/note-kdtree.py
 # python3 leet/note-linked_list.py
 # python3 leet/note-circular_buffer.py
@@ -24,6 +26,7 @@ set -e
 # python3 leet/problem-amount_of_time_for_binary_tree_to_be_infected.py
 # python3 leet/problem-arithmetic_slices_ii_subsequence.py
 # python3 leet/problem-bag_of_tokens.py
+# python3 leet/problem-balanced_tree.py
 # python3 leet/problem-basic_calculator_ii.py
 # python3 leet/problem-best_time_to_by_and_sell_stock.py
 # python3 leet/problem-binary_tree_vertical_order_traversal.py
@@ -36,6 +39,8 @@ set -e
 # python3 leet/problem-count_nodes_equal_to_average_of_subtree.py
 # python3 leet/problem-count_subarrays_where_max_element_appears_at_least_k_times.py
 # python3 leet/problem-count_subarrays_with_fixed_bounds.py
+# python3 leet/problem-course_schedule.py
+# python3 leet/problem-course_schedule_ii.py
 # python3 leet/problem-delete_nodes_and_return_forest.py
 # python3 leet/problem-design_circular_queue.py
 # python3 leet/problem-design_circular_deque.py
@@ -108,7 +113,7 @@ set -e
 # python3 leet/problem-valid_sudoku.py
 # python3 leet/problem-valid_word_abbreviation.py
 # python3 leet/problem-word_break.py
-# python3 leet/sandbox.py
+python3 leet/sandbox.py
 
 # python3 ml/mnist.py
 # python3 ml/linear_discriminant_analysis.py
@@ -120,5 +125,7 @@ set -e
 
 # python3 -m ml.superpoint
 
+# python3 -m leet.sandbox
+
 # pip3 install -r requirements.txt
-python3 -m robotics.note-icp
+# python3 -m robotics.note-icp

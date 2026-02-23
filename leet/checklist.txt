@@ -12,6 +12,7 @@ Tree min depth
 Tree max depth
 Tree balance
 Invert binary tree
+Build binary tree from array
 Trie
 
 
@@ -57,14 +58,16 @@ Convex Hull
 Dot product
 Cross product
 
+
 # Data-structures and Algorithms
+Circular Buffer
+LRU Cache
 Union-Find
 Segment Tree
-LRU Cache
 Monotonic Stack
-Circular Buffer
 Hungarian algorithm
 Moore voting algorithm
+Kahn's Algorithm
 
 
 # Sort
