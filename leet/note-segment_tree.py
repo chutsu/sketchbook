@@ -22,8 +22,6 @@ internal nodes store information about the segments represented by its children.
 The internal nodes are formed in a bottom-up manner by merging the information
 from its children nodes.
 
-https://codeforces.com/blog/entry/18051
-
 """
 import time
 import random
@@ -31,57 +29,44 @@ import random
 
 class SegmentTree:
   def __init__(self, arr):
-    self.N = len(arr)
-    self.data = [0] * (2 * N)
-    self.data[N:] = arr
-    for i in range(N - 1, 0, -1):
-      self.data[i] = self.data[2 * i] + self.data[2 * i + 1]
+    self.n = len(arr)
+    self.tree = [0] * self.n + arr
+    for i in range(self.n - 1, 0, -1):
+      self.tree[i] = self.tree[2 * i + 0] + self.tree[2 * i + 1]
+
+  def update(self, i, value):
+    i += self.n
+    self.tree[i] = value
+
+    while i > 1:
+      i //= 2
+      self.tree[i] = self.tree[2 * i + 0] + self.tree[2 * i + 1]
 
   def query(self, l, r):
-    res = 0
-    l += self.N
-    r += self.N
+    result = 0
+    l += self.n
+    r += self.n
 
     while l < r:
       if l % 2 == 1:
-        res += self.data[l]
+        result += self.tree[l]
         l += 1
-
       if r % 2 == 1:
         r -= 1
-        res += self.data[r]
+        result += self.tree[r]
+      l //= 2
+      r //= 2
 
-      l = l // 2
-      r = r // 2
-
-    return res
-
-  def modify(self, i, value):
-    i += self.N
-    self.data[i] = value
-
-    while i > 1:
-      i = i // 2
-      self.data[i] = self.data[2 * i] + self.data[2 * i + 1]
+    return result
 
 
 if __name__ == "__main__":
-  N = 10
-  arr = [x for x in range(N)]
+  arr = [1, 3, 5, 7, 9, 11]
 
-  tree = SegmentTree(arr)
-  s = 0
-  e = N
-  print(tree.data)
-  print(tree.query(s, e))
-  print(sum(arr[s:e]))
-  assert tree.query(s, e) == sum(arr[s:e])
+  stree = SegmentTree(arr)
+  print(stree.query(0, 6))
 
-  index = random.randint(0, N - 1)
-  value = random.randint(0, N - 1)
-  tree.modify(index, value)
-  arr[index] = value
-  print(tree.data)
-  print(tree.query(s, e))
-  print(sum(arr[s:e]))
-  assert tree.query(s, e) == sum(arr[s:e])
+  n = len(arr)
+  for start in range(n):
+    for end in range(n):
+      assert stree.query(start, end) == sum(arr[start:end])
