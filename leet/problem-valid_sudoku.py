@@ -1,65 +1,41 @@
 #!/usr/bin/env python3
+"""
+LeetCode 36: Valid Sudoku
 
+Determine if a 9 x 9 Sudoku board is valid. Only the filled cells need to be
+validated according to the following rules:
 
-def check_row(board, row_index):
-  counter = [0] * 9
-  for number in board[row_index]:
-    if number == ".":
-      continue
+    Each row must contain the digits 1-9 without repetition.
+    Each column must contain the digits 1-9 without repetition.
+    Each of the nine 3 x 3 sub-boxes of the grid must contain the digits 1-9
+    without repetition.
 
-    number = int(number)
-    if counter[number - 1] == 1:
-      return False
-    counter[number - 1] = 1
+Note:
 
-  return True
+    A Sudoku board (partially filled) could be valid but is not necessarily
+    solvable. Only the filled cells need to be validated according to the
+    mentioned rules.
 
-
-def check_column(board, col_index):
-  counter = [0] * 9
-  for row in board:
-    if row[col_index] == ".":
-      continue
-
-    number = int(row[col_index])
-    if counter[number - 1] == 1:
-      return False
-    counter[number - 1] = 1
-
-  return True
-
-
-def check_cell(board, row_start, col_start):
-  counter = [0] * 9
-  for i in range(row_start, row_start + 3):
-    for j in range(col_start, col_start + 3):
-      if board[i][j] == ".":
-        continue
-
-      number = int(board[i][j])
-      if counter[number - 1] == 1:
-        return False
-      counter[number - 1] = 1
-
-  return True
-
+"""
+from collections import defaultdict
 
 def is_valid_sudoku(board):
-  num_rows = 9
-  num_cols = 9
+  rows = defaultdict(set)
+  cols = defaultdict(set)
+  squares = defaultdict(set)
 
-  for i in range(num_rows):
-    if check_row(board, i) is False:
-      return False
+  for r in range(9):
+    for c in range(9):
+      if board[r][c] == ".":
+        continue
 
-  for i in range(num_cols):
-    if check_column(board, i) is False:
-      return False
-
-  for row_start in range(0, num_rows, 3):
-    for col_start in range(0, num_cols, 3):
-      if check_cell(board, row_start, col_start) is False:
+      x = board[r][c]
+      if x in rows[r] or x in cols[r] or x in squares[(r // 3, c // 3)]:
         return False
+
+      rows[r].add(x)
+      cols[c].add(x)
+      squares[(r // 3, c // 3)].add(x)
 
   return True
 

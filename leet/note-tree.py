@@ -33,7 +33,6 @@ def tree_bfs_iterative(tree):
 
   while len(queue):
     node = queue.pop(0)
-
     print(node.value)
 
     if node.left:

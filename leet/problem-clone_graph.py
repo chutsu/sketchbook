@@ -26,6 +26,13 @@ graph. Each list describes the set of neighbors of a node in the graph.
 The given node will always be the first node with val = 1. You must return the
 copy of the given node as a reference to the cloned graph.
 """
+from collections import deque
+
+
+class Node:
+  def __init__(self, val, neighbors):
+    self.val = val
+    self.neighbors = neighbors
 
 
 def clone_graph(node):

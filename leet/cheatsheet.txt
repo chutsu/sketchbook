@@ -5,7 +5,7 @@
     left = 0
     right = len(arr) - 1
 
-    while right <= left:
+    while left <= right:
       if CONDITION:
         left += 1
       else:
