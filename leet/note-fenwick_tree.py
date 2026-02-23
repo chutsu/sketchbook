@@ -11,35 +11,36 @@ Reference:
 https://www.youtube.com/watch?v=CWDQJGaN1gY
 """
 
-def update(ftree, index, value):
-  while index < len(ftree):
-    ftree[index] += value
-    index += index & -index
 
+class FenwickTree:
+  def __init__(self, n):
+    self.size = n
+    self.tree = [0] * (n + 1)
 
-def build(array):
-  n = len(array)
-  ftree = [0] * n
-  for i in range(1, n):
-    update(ftree, i, array[i])
-  return ftree
+  def update(self, i, delta):
+    i += 1
+    while i <= self.size:
+      self.tree[i] += delta
+      i += i & (-i)
 
+  def query(self, i):
+    i += 1
+    s = 0
+    while i > 0:
+      s += self.tree[i]
+      i -= i & (-i)
+    return s
 
-def get_sum(ftree, index):
-  ans = 0
-  while index > 0:
-    ans += ftree[index]
-    index -= index & -index
-  return ans
+  def range_query(self, left, right):
+    return self.query(right) - self.query(left - 1)
 
+arr = [5, 2, 9, -3, 5, 20, 10, -7]
+ftree = FenwickTree(8)
+for i, val in enumerate(arr):
+  ftree.update(i, val)
 
-def get_range_sum(ftree, left, right):
-  ans = get_sum(ftree, right) - get_sum(ftree, left - 1)
-  return ans
-
-
-arr = [x for x in range(10)]
-ftree = build(arr)
-print(ftree)
-print(get_sum(ftree, 5))
-print(get_range_sum(ftree, 0, 5))
+print(arr)
+print(ftree.tree)
+print(ftree.query(1))
+print(ftree.query(2))
+print(ftree.range_query(1, 2))
