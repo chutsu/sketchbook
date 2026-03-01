@@ -22,14 +22,14 @@ let y = x;   // x is COPIED → both valid
 println!("{} {}", x, y); // ✓
 ```
 
-## CLONE  (explicit deep copy)
+## Clone (explicit deep copy)
 
 ```
 let a = String::from("hi");
 let b = a.clone(); // both valid, heap data duplicated
 ```
 
-## BORROWING  &T  (immutable reference)
+## Borrowing &T  (immutable reference)
 
 ```
 let s = String::from("hi");
@@ -38,7 +38,7 @@ println!("{}", r);     // ✓  s still valid after
 -> many immutable refs allowed at once
 ```
 
-## BORROWING  &mut T  (mutable reference)
+## Borrowing &mut T  (mutable reference)
 
 ```
 let mut s = String::from("hi");
@@ -47,7 +47,7 @@ r.push_str(" world");  // ✓
 -> only ONE &mut ref allowed; no & refs simultaneously
 ```
 
-## REFERENCE RULES SUMMARY
+## Reference Rules Summary
 
 ```
  &T            many at once, read-only
@@ -55,14 +55,14 @@ r.push_str(" world");  // ✓
  &T + &mut T   NOT allowed simultaneously
 ```
 
-## LIFETIMES (when compiler needs a hint)
+## Lifetimes (when compiler needs a hint)
 
 ```
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str { ... }
 'a = "both inputs and output live at least this long"
 ```
 
-## COMMON SMART POINTERS
+## Common Smart Pointers
 
 ```
 Box<T>      heap allocation, single owner

@@ -4,8 +4,7 @@ A slice (&[T]) is a borrowed reference to a contiguous sequence
 of elements. It does not own data -- it borrows it.
 
 
-BASIC SLICE SYNTAX
-------------------
+## Basic Slice Syntax
 
 ```
 let arr = [1, 2, 3, 4, 5];
@@ -16,8 +15,8 @@ let last3  = &arr[2..];   // [3, 4, 5]
 let middle = &arr[1..4];  // [2, 3, 4]
 ```
 
-STRING SLICES (&str)
---------------------
+## String Slices (&str)
+
 
 ```
 let s = String::from("hello world");
@@ -28,8 +27,8 @@ let full: &str = &s;    // borrow the whole string
 ```
 
 
-IN FUNCTION SIGNATURES
-----------------------
+## In Function Signatures
+
 Prefer slices over &Vec or &String -- they are more flexible.
 
 ```
@@ -43,8 +42,8 @@ fn greet(name: &str) {          // accepts String or &str
 ```
 
 
-COMMON SLICE METHODS
---------------------
+## Common Slice Methods
+
 ```
 let s = &[1, 2, 3, 4, 5];
 
@@ -62,8 +61,8 @@ s.split_at(2)         // (&[1,2], &[3,4,5])
 s.starts_with(&[1,2]) // true
 ```
 
-MUTABLE SLICES
---------------
+## Mutable Slices
+
 ```
 let mut arr = [3, 1, 4, 1, 5];
 let s = &mut arr[1..4];
@@ -74,8 +73,8 @@ s.iter_mut().for_each(|x| *x *= 2);
 ```
 
 
-SLICES FROM VEC
----------------
+## Slices From Vec
+
 ```
 let v = vec![1, 2, 3];
 let s: &[i32] = &v;          // deref coercion
@@ -83,8 +82,8 @@ let s: &[i32] = v.as_slice();
 ```
 
 
-KEY RULE
---------
+## Key Rule
+
 ```
 &Vec<T>  -->  use &[T]
 &String  -->  use &str

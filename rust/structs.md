@@ -1,4 +1,6 @@
-# TYPES OF STRUCTS
+# Structs
+
+## Types of Structs
 
 ```
 // Named Field Struct
@@ -27,7 +29,7 @@ let m = Marker;
 // no fields, no ()
 ```
 
-# INSTANTIATION
+## Instantiation
 
 ```
 // Shorthand (when var name == field name)
@@ -42,7 +44,7 @@ let Point { x, y } = p;
 let Point { x: px, y: py } = p;           // rename while destructuring
 ```
 
-# IMPL BLOCKS & METHODS
+## Impl Blocks & Methods
 
 ```
 impl Point {
@@ -67,7 +69,7 @@ let mut p = Point::new(1.0, 2.0);         // associated fn
 p.translate(1.0, 1.0);                    // method call
 ```
 
-# DERIVE MACROS (Common)
+# Derive Macros (Common)
 
 ```
 #[derive(Debug)]          // println!("{:?}", p)  or  "{:#?}" pretty print
@@ -83,7 +85,7 @@ p.translate(1.0, 1.0);                    // method call
 struct Point { x: f64, y: f64 }
 ```
 
-# TRAITS ON STRUCTS
+## Traits on Structs
 
 ```
 // Implement a trait
@@ -99,7 +101,7 @@ impl Default for Point {
 }
 ```
 
-# GENERICS & LIFETIMES
+## Generics & Lifetimes
 
 ```
 // Generic struct
@@ -115,7 +117,7 @@ struct Important<'a> {
 }
 ```
 
-# VISIBILITY
+## Visibility
 
 ```
 pub struct Foo {           // public struct
@@ -127,7 +129,7 @@ pub struct Foo {           // public struct
 // Private fields force use of constructors (good for invariants)
 ```
 
-# COMMON PATTERNS
+## Common Patterns
 
 ```
 // Builder pattern                       // Newtype pattern
@@ -146,7 +148,7 @@ impl Safe<Locked>   { fn unlock(self) -> Safe<Unlocked> { ... } }
 impl Safe<Unlocked> { fn open(&self)  { ... } }
 ```
 
-# QUICK REFERENCE
+## Quick Reference
 
 ```
 struct Foo { .. }   Named  │  impl Foo { fn method(&self) }
