@@ -10,6 +10,46 @@ data structure that excels at handling two specific questions very quickly:
 1. Union: Can you merge these two groups into one?
 2. Find: Which group does this specific person belong to?
 
+
+Path Compression Example
+------------------------
+
+```
+# parent array: { 1:2, 2:3, 3:4, 4:4 }
+find(parent, 1)
+```
+
+The calls stack up *before* any assignments happen:
+
+```
+find(1)  -> parent[1] != 1, so calls find(2)
+  find(2)  -> parent[2] != 2, so calls find(3)
+    find(3)  -> parent[3] != 3, so calls find(4)
+      find(4)  -> parent[4] == 4, BASE CASE, returns 4
+```
+
+Now the stack **unwinds**, and this is where compression happens:
+
+```
+    find(3): parent[3] = 4  <- 3 now points to root
+             returns 4
+  find(2): parent[2] = 4    <- 2 now points to root
+           returns 4
+find(1): parent[1] = 4      <- 1 now points to root
+         returns 4
+```
+
+The key insight is that `find(parent, parent[x])` **returns the root**, so
+assigning `parent[x] = find(...)` is the same as `parent[x] = root`. Every
+frame on the call stack does this as it unwinds.
+
+## Before vs. after
+```
+BEFORE             AFTER
+1 -> 2 -> 3 -> 4   1 -> 4
+                   2 -> 4
+                   3 -> 4
+
 """
 
 class UnionFind:
