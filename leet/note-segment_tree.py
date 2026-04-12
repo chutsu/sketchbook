@@ -22,6 +22,64 @@ internal nodes store information about the segments represented by its children.
 The internal nodes are formed in a bottom-up manner by merging the information
 from its children nodes.
 
+
+Why is 1-index preferred in Segment trees?
+------------------------------------------
+
+= The trick: children via bit shifts
+
+When you store a segment tree in an array with the root at index 1:
+
+```
+left child  of node i  =  2*i      (i << 1)
+right child of node i  =  2*i + 1  (i << 1 | 1)
+parent      of node i  =  i // 2   (i >> 1)
+```
+
+These are just bit operations — extremely fast, and dead simple to remember.
+
+= Why 0-index breaks this
+
+If you put the root at index 0:
+
+```
+left child  of node i  =  2*i + 1
+right child of node i  =  2*i + 2
+parent      of node i  =  (i - 1) // 2
+```
+
+It still works, but you lose the elegance. The parent formula is messier, and
+you can't use the clean i >> 1 shift anymore.
+
+= Visualizing the 1-indexed layout
+
+```
+Index:        1
+            /    \
+           2      3
+          / \    / \
+         4   5  6   7
+```
+
+Notice the pattern — all nodes at the same depth are contiguous, and the index
+literally encodes the path from root to node in binary:
+
+```
+node 6  =  110 in binary
+            │└─ went right at depth 2
+            └── went left  at depth 1
+```
+
+This binary encoding of the path is a deeper reason the math works out so
+cleanly — each bit tells you which branch was taken.
+
+= Bottom line
+
+0-indexed trees work fine and some implementations use them. But 1-indexed
+trees let you navigate with i*2, i*2+1, and i/2, which are branchless,
+cache-friendly, and trivially memorable. It's a case where a small convention
+pays off everywhere else in the code.
+
 """
 import time
 import random
@@ -48,10 +106,10 @@ class SegmentTree:
     r += self.n
 
     while l < r:
-      if l % 2 == 1:
+      if l % 2 == 1: # l is right child, include it and move right
         result += self.tree[l]
         l += 1
-      if r % 2 == 1:
+      if r % 2 == 1: # r is right child, include its left sibling
         r -= 1
         result += self.tree[r]
       l //= 2
