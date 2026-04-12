@@ -1,4 +1,4 @@
-#include "xyz_http.h"
+#include "http.h"
 
 static char b64_encode_table[] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
                                   'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
