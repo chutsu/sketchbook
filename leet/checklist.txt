@@ -61,6 +61,7 @@ Cross product
 
 # Data-structures and Algorithms
 Circular Buffer
+Trie
 LRU Cache
 Union-Find
 Segment Tree
@@ -68,7 +69,6 @@ Monotonic Stack
 Hungarian algorithm
 Moore voting algorithm
 Kahn's Algorithm
-
 
 # Sort
 Bucket sort

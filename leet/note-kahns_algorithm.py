@@ -55,5 +55,5 @@ if __name__ == "__main__":
   # |--> 2 ---^
   num_nodes = 5
   dependencies = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)]
-  topo_order = kahn_topological_sort(num_nodes, dependencies)
+  topo_order = kahn(num_nodes, dependencies)
   print(topo_order)
