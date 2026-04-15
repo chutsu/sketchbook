@@ -2,6 +2,10 @@
 data/MNIST
 data/bunny
 
+# Docs
+docs/_build
+docs/build
+
 # Python
 venv
 __pycache__/
