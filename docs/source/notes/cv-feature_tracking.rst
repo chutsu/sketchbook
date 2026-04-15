@@ -40,9 +40,9 @@ for the whole image. To encourage a uniform feature distribution a custom naive
 implementation of Grid-FAST was implemented~\footnote{At the time of writing
 OpenCV has removed the interface to the \texttt{GridAdaptedFeatureDetector}
 implementation from their code base.}. The naive Grid-FAST was implemented as
-follows, given an image we divide the image into :math:`r` rows and :math:`c` columns with
-the goal of detecting a total max number of :math:`N` corners. The max number of
-corners per grid cell :math:`n` is then given as
+follows, given an image we divide the image into :math:`r` rows and :math:`c`
+columns with the goal of detecting a total max number of :math:`N` corners. The
+max number of corners per grid cell :math:`n` is then given as
 
 .. math::
 
