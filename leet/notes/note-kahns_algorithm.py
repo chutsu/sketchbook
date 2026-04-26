@@ -16,7 +16,7 @@ topological ordering impossible.
 from collections import defaultdict
 
 
-def kahn(num_nodes, dependencies):
+def kahn(dependencies, num_nodes):
   # Build the graph and calculate in-degrees
   adj_list = defaultdict(list)
   in_degree = defaultdict(int)
@@ -55,5 +55,5 @@ if __name__ == "__main__":
   # |--> 2 ---^
   num_nodes = 5
   dependencies = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)]
-  topo_order = kahn(num_nodes, dependencies)
+  topo_order = kahn(dependencies, num_nodes)
   print(topo_order)

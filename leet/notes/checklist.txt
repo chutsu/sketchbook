@@ -36,7 +36,6 @@ Topological sort
 
 
 # Misc
-Binary search
 Cyclic Sort
 Two Heaps
 Subsets
@@ -68,7 +67,9 @@ Segment Tree
 Monotonic Stack
 Hungarian algorithm
 Moore voting algorithm
-Kahn's Algorithm
+Kahn's algorithm
+Kadane's algorithm
+
 
 # Sort
 Bucket sort
