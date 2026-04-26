@@ -2,10 +2,10 @@
 
 - What are your strengths?
 - What are your weaknesses?
-- Why are you interested in working for [insert company name here]?
+- Why are you interested in working for us?
 - Where do you see yourself in 5 years? 10 years?
 - Why do you want to leave your current company?
-- Why was there a gap in your employment between [insert date] and [insert date]?
+- Why was there a gap in your employment?
 - What can you offer us that someone else can not?
 - What are three things your former manager would like you to improve on?
 - Are you willing to relocate?

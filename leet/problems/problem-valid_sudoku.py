@@ -19,6 +19,7 @@ Note:
 """
 from collections import defaultdict
 
+
 def is_valid_sudoku(board):
   rows = defaultdict(set)
   cols = defaultdict(set)

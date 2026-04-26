@@ -39,12 +39,12 @@ data = b"\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf2\xf
 # 4 => "::   "  4 => 11000
 # 242 => "@@@@@"
 
-
 mp = {
-  0: " ",
-  1: ":",
-  2: "@"
+    0: " ",
+    1: ":",
+    2: "@",
 }
+
 
 def h2c(byte, end=""):
   result = ""
@@ -54,13 +54,14 @@ def h2c(byte, end=""):
     result += mp[remainder]
   return result
 
+
 index = 0
 image = []
 for i in range(height):
   image_row = []
   for j in range(18):
     byte = data[index]
-    index+=1
+    index += 1
     image_row.append(h2c(byte))
   image.append("".join(image_row))
 

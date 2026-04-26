@@ -54,11 +54,11 @@ you can't use the clean i >> 1 shift anymore.
 = Visualizing the 1-indexed layout
 
 ```
-Index:        1
-            /    \
-           2      3
-          / \    / \
-         4   5  6   7
+Index:         1
+            /     \
+           2       3
+          / \     / \
+         4   5   6   7
 ```
 
 Notice the pattern — all nodes at the same depth are contiguous, and the index
