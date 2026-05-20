@@ -27,9 +27,9 @@ Capacity = 4:
 write(a): buffer=[a,_,_,_]  head=0, tail=1
 write(b): buffer=[a,b,_,_]  head=0, tail=2
 write(c): buffer=[a,b,c,_]  head=0, tail=3
-read():   buffer=[_,b,c,_]  head=1, tail=3  → returns a
-write(d): buffer=[_,b,c,d]  head=1, tail=0  ← tail wrapped!
-write(e): buffer=[e,b,c,d]  head=1, tail=1  ← wrote to front
+read():   buffer=[_,b,c,_]  head=1, tail=3  -> returns a
+write(d): buffer=[_,b,c,d]  head=1, tail=0  <- tail wrapped!
+write(e): buffer=[e,b,c,d]  head=1, tail=1  <- wrote to front
 read():   returns b, head=2
 ```
 

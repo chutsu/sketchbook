@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Error-State Kalman Filter</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>Error-State Kalman Filter</h1>
+
+<h2>True state kinematics</h2>
+
+$$
+\dot\pos &= \vel \\
+\dot\vel &= \acc \\
+\dot\quat &= \dfrac{1}{2} \quat \otimes \angvel \\
+\dot\bias_{\acc} &= \mathbf{n}_{\bias_{\acc}} \\
+\dot\bias_{\boldsymbol{\omega}} &= \mathbf{n}_{\bias_{\boldsymbol{\omega}}}
+$$
+<p>True acceleration and angular rate are obtained from an IMU in the form of noisy</p>
+<p>sensor readings expresssed in the sensor frame, namely</p>
+
+$$
+\acc_{m} &= \rot (\acc - \gravity) + \bias_{\acc} + \mathbf{n}_{\acc} \\
+\boldsymbol{\omega}_{m} &= \angvel + \bias_{\boldsymbol{\omega}} + \mathbf{n}_{\boldsymbol{\omega}}
+$$
+$$
+\state = \begin{bmatrix}
+  \pos \\
+  \vel \\
+  \quat \\
+  \bias_{\acc} \\
+  \bias_{\boldsymbol{\omega}}
+\end{bmatrix}
+\enspace
+\vec{u} = \begin{bmatrix}
+  \acc_{m} - \mathbf{n}_{\acc} \\
+  \boldsymbol{\omega}_{m} - \mathbf{n}_{\boldsymbol{\omega}}
+\end{bmatrix}
+\enspace
+\mathbf{n} = \begin{bmatrix}
+  \mathbf{n}_{\bias_{\acc}} \\
+  \mathbf{n}_{\bias_{\boldsymbol{\omega}}}
+\end{bmatrix}
+$$
+<h2>Nominal state kinematics</h2>
+
+$$
+\dot\pos &= \vel \\
+\dot\vel &= \rot (\acc_{m} - \bias_{\acc}) + \gravity \\
+\dot\quat &= \dfrac{1}{2} \quat \otimes (\boldsymbol{\omega}_{m} - \bias_{\boldsymbol{\omega}}) \\
+\dot\bias_{\acc} &= \zeros_{3 \times 1} \\
+\dot\bias_{\boldsymbol{\omega}} &= \zeros_{3 \times 1}
+$$
+<h2>Error state kinematics</h2>
+
+$$
+\dot{\delta\pos} &= \delta\vel \\
+\dot{\delta\vel} &= -\rot \vee{\acc_{m} - \bias_{\acc}} \dtheta
+  - \rot \delta\bias_{\acc}
+  + \delta\gravity
+  - \rot \mathbf{n}_{\acc} \\
+\dot{\dtheta} &= -\vee{\boldsymbol{\omega}_{m} - \bias_{\boldsymbol{\omega}}} \dtheta
+  - \delta\bias_{\boldsymbol{\omega}}
+  - \mathbf{n}_{\boldsymbol{\omega}} \\
+\dot{\delta\bias_{\acc}} &= \mathbf{n}_{\bias_{\acc}} \\
+\dot{\delta\bias_{\boldsymbol{\omega}}} &= \mathbf{n}_{\bias_{\boldsymbol{\omega}}}
+$$
+<h2>Error state Jacobian</h2>
+
+$$
+\mat{F}_{\state}
+  = \dfrac{\partial f}{\partial \delta\state}
+  = \begin{bmatrix}
+    % Row 1
+    \zeros_{3\times3}
+    & \eye_{3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    \\ % Row 2
+    \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & -\rot \vee{\acc_{m} - \bias_{\acc}}
+    & -\rot
+    & \zeros_{3\times3}
+    \\ % Row 3
+    \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & -\vee{\boldsymbol{\omega}_{m} - \bias_{\boldsymbol{\omega}}}
+    & \zeros_{3\times3}
+    & -\eye_{3\times3}
+    \\ % Row 4
+    \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    \\ % Row 4
+    \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+    & \zeros_{3\times3}
+  \end{bmatrix}
+$$
+</div>
+</body>
+</html>

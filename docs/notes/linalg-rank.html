@@ -1,0 +1,33 @@
+<h1>Rank</h1>
+
+<p>The rank $\rho(\mat{A})$ of a matrix $\mat{A}$ of $n$ rows
+and $m$ columns is defined as **the number of independent rows or
+columns**. Rank is thus a measure of the "non-degenerateness" of the system of
+lienar equations and linear transformation encoded by $\mat{A}$.</p>
+
+<ul>
+  <li>Full rank (non-singular): $\rho(\mat{A}) = \min(n, m)$</li>
+  <li>Not full rank (singular): $\rho(\mat{A}) < \min(n, m)$</li>
+</ul>
+
+
+
+<h2>Properties</h2>
+
+Let $\mat{A}$ be an $m \times n$ matrix, and $\mat{B}$ be an
+$n \times k$ matrix,
+
+$$
+  \begin{align}
+  \rank{\mat{A}} &\leq \Min{m}{n} \\
+  \rank{\mat{AB}} &\leq \Min{\rank{\mat{A}}}{\rank{\mat{B}}} \\
+  \rank{\mat{AB}} + \rank{\mat{BC}}
+    &\leq \rank{\mat{B}} + \rank{\mat{ABC}} \\
+  \rank{\mat{A} + \mat{B}} &\leq \rank{\mat{A}} + \rank{\mat{B}} \\
+  \rank{\mat{A}^{T} \mat{A}}
+    &= \rank{\mat{A} \mat{A}^{T}}
+    = \rank{\mat{A}}
+    = \rank{\mat{A}^{T}} \\
+  \rank{\mat{0}} &= 0
+  \end{align}
+$$

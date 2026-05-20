@@ -1,0 +1,108 @@
+<h1>Non-linear Least Squares</h1>
+
+<h2>Gauss Newton</h2>
+
+$$
+  \begin{align}
+    \argmin_{\vec{x}} J(\vec{x})
+      &=
+        \dfrac{1}{2}
+        \sum_{i}
+        \vec{e}_{i}^{T} \mat{W} \vec{e}_{i} \\
+      &=
+        \dfrac{1}{2} \enspace
+        \vec{e}_{i}^{T}(\vec{x})
+        \mat{W}
+        \vec{e}_{i}(\vec{x})
+  \end{align}
+$$
+
+where the error function, $\vec{e}(\cdot)$, depends on the optimization
+parameter, $\vec{x} \in \real^{n}$. The error function,
+$\vec{e}(\cdot)$, has a form of
+
+$$
+  \vec{e}_{i} = \vec{z} - \vec{h}(\vec{x})
+$$
+
+is defined as the difference between the measured value, $\vec{z}$, and
+the estimated value calculated using the measurement function,
+$\vec{h}(\cdot)$.  Since the error function, $\vec{e}(\vec{x})$, is
+non-linear, it is approximated with the first-order Taylor series,
+
+$$
+  \vec{e}(\vec{x})
+    \approx
+      \vec{e}(\bar{\vec{x}}) +
+      \mat{E}(\bar{\vec{x}}) \Delta\vec{x}
+$$
+
+where $\mat{E}(\bar{\vec{x}}) =
+\dfrac{\partial\vec{e}(\vec{x})}{\partial\vec{x}} \bigg\rvert_{\vec{x}_{k}}$
+and $\Delta{\vec{x}} = \vec{x} - \bar{\vec{x}}$.
+
+$$
+  \dfrac{\partial{J}}{\partial{\vec{x}}} =
+    \dfrac{\partial{J}}{\partial{\vec{e}}}
+    \dfrac{\partial{\vec{e}}}{\partial{\vec{x}}}
+$$
+
+$$
+  \begin{align}
+    \dfrac{\partial{J}}{\partial{\vec{e}}} &=
+      \dfrac{1}{2} \vec{e}^{T}(\vec{x}) \mat{W} \vec{e}(\vec{x}) =
+      \vec{e}^{T}(\vec{x}) \mat{W} \\
+    %
+    \dfrac{\partial{\vec{e}}}{\partial{\vec{x}}} &=
+      \vec{e}(\bar{\vec{x}}) +
+      \mat{E}(\bar{\vec{x}}) \Delta\vec{x} =
+      \mat{E}(\bar{\vec{x}})
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    \dfrac{\partial{J}}{\partial{\vec{x}}}
+    &=
+      (\vec{e}^{T}(\vec{x}) \mat{W}) (\mat{E}(\bar{\vec{x}})) \\
+    % Line 2
+    &=
+      (
+        \vec{e}(\bar{\vec{x}}) + \mat{E}(\bar{\vec{x}}) \Delta\vec{x}
+      )^{T} \mat{W}
+      \mat{E}(\bar{\vec{x}}) \\
+    % Line 3
+    &=
+      \vec{e}^{T}(\bar{\vec{x}}) \mat{W} \mat{E}(\bar{\vec{x}})
+      + \Delta\vec{x}^{T}
+        \mat{E}(\bar{\vec{x}})^{T} \mat{W} \mat{E}(\bar{\vec{x}})
+      = 0 \\
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    % Line 4
+    \Delta\vec{x}^{T}
+      \mat{E}(\bar{\vec{x}})^{T} \mat{W} \mat{E}(\bar{\vec{x}})
+    &=
+      - \vec{e}^{T}(\bar{\vec{x}}) \mat{W} \mat{E}(\bar{\vec{x}}) \\
+    % Line 5
+    \underbrace{
+      \mat{E}(\bar{\vec{x}})^{T} \mat{W} \mat{E}(\bar{\vec{x}})
+    }_{\mat{H}}
+      \Delta\vec{x}
+    &=
+    \underbrace{
+      - \mat{E}(\bar{\vec{x}})^{T} \mat{W} \vec{e}(\bar{\vec{x}})
+    }_{\vec{b}}
+  \end{align}
+$$
+
+Solve the normal equations $\mat{H}\Delta\vec{x} = \vec{b}$ for $\Delta\vec{x}$
+using the Cholesky or QR-decompositon. Once $\Delta\vec{x}$ is found the best
+estimate $\bar{\vec{x}}$ can be updated via,
+
+$$
+  \bar{\vec{x}}_{k + 1} = \bar{\vec{x}}_{k} + \Delta\vec{x}.
+$$

@@ -1,0 +1,70 @@
+<h1>Triangulation</h1>
+
+<h2>Linear Triangulation</h2>
+
+<p>There are various methods for triangulating a 3D point obeserved from at
+least two camera views. The linear triangulation method [Hartley2003] is
+frequently used. This method assumes a pair of homogeneous points $\vec{x}$ and
+$\vec{x}' \in \real^{3}$ in the image plane that observes the same 3D point,
+$\vec{X} \in \real^{4}$, in homogeneous coordinates from two different camera
+frames. The homogeneous projection from 3D to 2D with a known camera matrix
+$\mat{P} \in \real^{3 \times 4}$ for each measurement is given as,</p>
+
+$$
+  \begin{align}
+    \vec{x} &= \mat{P} \vec{X} \\
+    \vec{x}' &= \mat{P}' \vec{X}.
+  \end{align}
+$$
+
+<p>Taking avantage of the fact if two vectors $\vec{x}$ and $\mat{P}\vec{X}$ have
+the same direction then $\vec{x} \times \mat{P} \vec{X} = 0$.  These equations
+can be combined to form a system of equations of the form $\mat{A} \vec{x} =
+\vec{0}$. To eliminate the homogeneous scale factor we apply a cross product to
+give three equations for each image point, for example $\vec{z} \times (\mat{P}
+\mat{X}) = \vec{0}$ writing this out gives</p>
+
+$$
+  x (\vec{p}^{3T} \vec{X}) - (\vec{p}^{1T} \vec{X}) = 0 \\
+  y (\vec{p}^{3T} \vec{X}) - (\vec{p}^{2T} \vec{X}) = 0 \\
+  x (\vec{p}^{2T} \vec{X}) - y (\vec{p}^{1T} \vec{X}) = 0
+$$
+
+<p>where $\vec{p}^{iT}$ is the $i^{\text{th}}$ row of $\vec{P}$.
+Note that the third line in the above equation is a linear combination of the
+first two, ($c_1$ times first line plus $c_2$ times second line =
+third line), as such the third line spans the space of the first two equations
+and therefore is redundant.</p>
+
+<p>From the above, an equation of the form $\mat{A} \vec{x} = \vec{0}$ for
+each image point can be formed, where $\vec{x}$ represents the unknown
+homogeneous feature location to be estimated, and $\mat{A}$ is given as</p>
+
+$$
+  \mathbf{A} =
+  \begin{bmatrix}
+    x (\vec{p}^{3T}) - (\vec{p}^{1T}) \\
+    y (\vec{p}^{3T}) - (\vec{p}^{2T}) \\
+    x' (\vec{p'}^{3T}) - (\vec{p'}^{1T}) \\
+    y' (\vec{p'}^{3T}) - (\vec{p'}^{2T})
+  \end{bmatrix}
+$$
+
+<p>giving a total of four equations in four homogeneous unknowns. Solving for
+$\vec{A}$ using SVD allows us to estimate the initial feature location.</p>
+
+<p>In an ideal world, the position of 3D points can be solved as a system of
+equations using the linear triangulation method. In reality, however, errors
+are present in the camera poses and pixel measurements. The pixel measurements
+observing the same 3D point are generally noisy. In addition, the camera models
+and distortion models used often do not model the camera projection or
+distortion observed perfectly. Therefore to obtain the best results an
+iterative method should be used. This problem is generally formulated as a
+non-linear least square problem and can be solved by numerical methods, such as
+the Gauss-Newton algorithm.</p>
+
+
+<h3>References</h3>
+
+[Hartley2003]: Hartley, Richard, and Andrew Zisserman. Multiple view geometry
+in computer vision. Cambridge university press, 2003.

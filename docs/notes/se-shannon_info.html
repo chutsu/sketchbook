@@ -1,0 +1,121 @@
+<h1>Shannon Information</h1>
+
+$$
+  \begin{align}
+    H(\mathbf{x})
+      &= - \E{\ln p(\mathbf{\vec{x}})} \\
+      &= - \int p(\vec{x}) \ln p(\vec{x}) dx \\
+      &= - \int_{-\infty}^{\infty} p(\vec{x}) \ln \left(
+        \frac{1}{\sqrt{(2 \pi)^{N} \text{det}({\mathbf{\Sigma}})}}
+        \exp\left(
+          -\dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+        \right)
+      \right) \\
+      &= - \int_{-\infty}^{\infty} p(\vec{x}) \left(
+        - \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+          -\dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+      \right) \\
+      &= \int_{-\infty}^{\infty}
+        \frac{1}{2} \ln (2 \pi)^{N}
+        \text{det}({\mathbf{\Sigma}}) \enspace p(\vec{x})
+        + \int_{-\infty}^{\infty}
+        \dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+          \enspace p(\vec{x}) \\
+      &= \int_{-\infty}^{\infty}
+        \frac{1}{2} \ln (2 \pi)^{N}
+        \text{det}({\mathbf{\Sigma}}) \enspace p(\vec{x})
+        + \int_{-\infty}^{\infty}
+        \dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+          \enspace p(\vec{x}) \\
+      &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+          \int_{-\infty}^{\infty} p(\vec{x})
+        + \int_{-\infty}^{\infty}
+        \dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+          \enspace p(\vec{x}) \\
+      &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+        + \int_{-\infty}^{\infty}
+        \dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+          \enspace p(\vec{x}) \\
+      &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+        + \E{
+          \dfrac{1}{2} (\vec{x} - \boldsymbol{\mu})^{T}
+          \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+        }
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    % Line 1
+    (\vec{x} - \boldsymbol{\mu})^{T}
+    \mathbf{\Sigma}^{-1}
+    (\vec{x} - \boldsymbol{\mu})
+    &=
+      \tr{
+        \mathbf{\Sigma}^{-1}
+        (\vec{x} - \boldsymbol{\mu})
+        (\vec{x} - \boldsymbol{\mu})^{T}
+      } \\
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \E{
+        (\vec{x} - \boldsymbol{\mu})^{T}
+        \Sigma^{-1} (\vec{x} - \boldsymbol{\mu})
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \E{
+          \tr{
+            \mathbf{\Sigma}^{-1}
+            (\vec{x} - \boldsymbol{\mu})
+            (\vec{x} - \boldsymbol{\mu})^{T}
+          }
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \tr{
+          \E{
+            \mathbf{\Sigma}^{-1}
+            (\vec{x} - \boldsymbol{\mu})
+            (\vec{x} - \boldsymbol{\mu})^{T}
+          }
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \tr{
+          \mathbf{\Sigma}^{-1}
+          \E{
+            (\vec{x} - \boldsymbol{\mu})
+            (\vec{x} - \boldsymbol{\mu})^{T}
+          }
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \tr{
+          \mathbf{\Sigma}^{-1}
+          \mathbf{\Sigma}
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \tr{
+        \eye
+      } \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} N \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} N \ln e \\
+    &= \frac{1}{2} \ln (2 \pi)^{N} \text{det}({\mathbf{\Sigma}})
+      + \dfrac{1}{2} \ln e^{N} \\
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    H(\vec{x}) = \frac{1}{2} \ln (2 \pi e)^{N} \text{det}({\mathbf{\Sigma}})
+  \end{align}
+$$

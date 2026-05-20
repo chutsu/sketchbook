@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feature Tracking</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>Feature Tracking</h1>
+
+<p>In this section we explain how feature points are detected and matched</p>
+<p>between different camera frames. The common feature detection and matching</p>
+<p>pipeline for localization and mapping algorithms is:</p>
+
+<ul>
+<li>Detect regions of interests (image feature) in the image</li>
+<li>Extract image feature information using descriptors</li>
+<li>Match extracted descriptors</li>
+
+</ul>
+
+<h2>FAST</h2>
+
+<p>Feature detection in computer vision is a process of gathering scene</p>
+<p>information and deciding locally whether an image feature exists. The resulting</p>
+<p>subset of image features in the image domain can in turn be used for</p>
+<p>localization and mapping algorithms to estimate the camera pose.</p>
+
+<p>For our requirements corners was the chosen image feature. The most widely used</p>
+<p>corner detector is the FAST feature detector~[Rosten2006]. The advantage</p>
+<p>of using FAST includes its speed and high detection rate. It operates by</p>
+<p>inspecting a gray-scale image and applying a Bresenham circle or patch of</p>
+<p>configurable radius (radius of 3 for a 16 pixel circle in</p>
+<p>Fig[fig:fast_corner]), where each pixel value on the circle is labeled</p>
+<p>clockwise. If a set of $N$ contiguous pixels in the circle are all</p>
+<p>brighter than the intensity of the center candidate pixel $p$ plus a</p>
+<p>threshold value $t$, or are all darker compared to $p$ minus a</p>
+<p>threshold value $t$, then $p$ is considered a corner.</p>
+
+<img src="imgs/cv-fast.jpg" alt="">
+<p>A uniform feature distribution over the image domain is known to avoid</p>
+<p>degenerate configurations for SLAM, and reduce redundant information. Further,</p>
+<p>a uniform and un-clustered corner distribution has the potential of increasing</p>
+<p>computer vision pipeline efficiency, as a lower number of features are required</p>
+<p>for the whole image. To encourage a uniform feature distribution a custom naive</p>
+<p>implementation of Grid-FAST was implemented~\footnote{At the time of writing</p>
+<p>OpenCV has removed the interface to the <code>GridAdaptedFeatureDetector</code></p>
+<p>implementation from their code base.}. The naive Grid-FAST was implemented as</p>
+<p>follows, given an image we divide the image into $r$ rows and $c$</p>
+<p>columns with the goal of detecting a total max number of $N$ corners. The</p>
+<p>max number of corners per grid cell $n$ is then given as</p>
+
+$$
+n = \dfrac{N}{r \times c}
+$$
+<p>Using $n$ we limit the corners detected in each image grid cell to</p>
+<p>naively encourage a uniform distribution.</p>
+
+<p>In Fig.~[fig:grid_fast_comparison] both FAST and Grid-FAST observe the same</p>
+<p>image scene with the same detection parameters. Grid-FAST divided the image</p>
+<p>into 10 rows and columns to encourage a uniform corner detection. While</p>
+<p>Grid-FAST detected a lower number of corners compared to FAST (714, 1000</p>
+<p>respectively), we can observe the benefit of using Grid-FAST in</p>
+<p>Fig.~[subfig:fast_hist2d] and Fig.~[subfig:grid_fast_hist2d], where it</p>
+<p>clearly shows that FAST detection has an undesirably high detection</p>
+<p>concentration around the chessboard in this particular scene, Grid-FAST on the</p>
+<p>other hand does not exhibit the same problem. Although, Grid-FAST obtains</p>
+<p>features of lower quality in terms of repeatable detection, the threshold of</p>
+<p>corner-ness can be increased if this is an issue.</p>
+
+<h2>Feature Descriptor</h2>
+
+<p>To correspond image features detected in two different image frames a feature</p>
+<p>descriptor is used. Feature descriptors are a way to describe the image feature</p>
+<p>observed for matching. There are a number of feature descriptors that extract</p>
+<p>patch information in order to create a robust and repeatable match. Feature</p>
+<p>descriptors such as SIFT~[Lowe1999], SURF~[Bay2006], are histogram of</p>
+<p>gradients (HOG) based patch descriptors. These HOG descriptors are invariant to</p>
+<p>small rotations and lighting variations, they are however, relatively expensive</p>
+<p>to compute. The computationally expensive components are its calculation of the</p>
+<p>image gradient and large descriptor dimension. While both descriptors provide</p>
+<p>quality information of image features, the aforementioned computational factors</p>
+<p>impact the matching speed significantly.</p>
+
+<p>Binary descriptors such as BRIEF~[Calonder2010], ORB~[Rublee2011] and</p>
+<p>BRISK~[Leutenegger2011] have been proposed to speed up the feature</p>
+<p>descriptor and matching process. The performance boost in binary descriptors</p>
+<p>comes in the form of using a binary sampling pattern around each image feature</p>
+<p>previously detected (see Fig[fig:binary_descriptors]), and outputting a</p>
+<p>binary vector, instead of computing image gradients and outputting a floating</p>
+<p>point vector. Each binary descriptor uses its own unique sampling pattern, and</p>
+<p>outputs a binary string to be used for matching. The matching process is</p>
+<p>cheaper compared to the HOG based descriptors, because instead of comparing two</p>
+<p>floating point vectors, comparing binary descriptors is performed by computing</p>
+<p>the Hamming distance using a XOR or bit count operation, which can be performed</p>
+<p>extremely quickly on modern CPUs~[Calonder2012].</p>
+
+<figure>
+  <img src="imgs/cv-brief.png" alt="">
+  <figcaption>BRIEF Descriptor</figcaption>
+</figure>
+<figure>
+  <img src="imgs/cv-orb.png" alt="">
+  <figcaption>ORB Descriptor</figcaption>
+</figure>
+<figure>
+  <img src="imgs/cv-brisk.png" alt="">
+  <figcaption>BRISK Descriptor</figcaption>
+</figure>
+</div>
+</body>
+</html>

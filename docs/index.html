@@ -1,1 +1,196 @@
-<meta http-equiv="refresh" content="0; url=./build/html/index.html" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notes</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    html { margin: 0; padding: 0; }
+    body {
+      display: block;
+      width: 1270px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 0;
+      margin-bottom: 0;
+      padding: 0;
+      text-align: justify;
+      font-size: 1.1em;
+      font-family: 'Fira Sans', Helvetica, sans-serif;
+    }
+    #sidebar-container {
+      display: block;
+      width: 250px;
+      position: fixed;
+    }
+    #sidebar-container a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    #sidebar-container ul {
+      margin-left: 10px;
+      margin-top: 10px;
+      padding-left: 10px;
+    }
+    #sidebar-container li {
+      margin-top: 5px;
+    }
+    #content {
+      display: block;
+      width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-top: 20px;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; text-align: left; }
+    h2 { font-size: 1.4em; text-align: left; }
+    h3 { font-size: 1.2em; text-align: left; }
+    h4 { font-size: 1.1em; text-align: left; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid;
+      display: flex;
+      flex-flow: column;
+      padding: 5px;
+      max-width: 600px;
+      margin: auto;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    figcaption {
+      background-color: #222;
+      color: #fff;
+      font: italic smaller sans-serif;
+      padding: 3px;
+      text-align: center;
+    }
+    .eqn-num { display: none !important; }
+    .katex { font-size: 1.2em; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    article { display: block; margin-top: 50px; margin-bottom: 50px; }
+  </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div id="content">
+  <p>Select a topic from the sidebar.</p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function() {
+  const katexMacros = {
+    "\\mat": "\\mathbf{#1}",
+    "\\vec": "\\mathbf{#1}",
+    "\\rot": "\\mathbf{C}",
+    "\\eye": "\\mathbf{I}",
+    "\\det": "\\text{det}\\left(#1\\right)",
+    "\\tr": "\\text{tr}\\left(#1\\right)",
+    "\\rank": "\\text{rank}\\left(#1\\right)",
+    "\\quat": "\\mathbf{q}",
+    "\\tf": "\\mathbf{T}",
+    "\\pos": "\\mathbf{r}",
+    "\\vel": "\\mathbf{v}",
+    "\\acc": "\\mathbf{a}",
+    "\\angvel": "\\mathbf{w}",
+    "\\frame": "\\mathcal{F}",
+    "\\pt": "\\mathbf{p}",
+    "\\vee": "{(#1)^\\times}",
+    "\\norm": "{\\left|\\left|#1\\right|\\right|}",
+    "\\covar": "{\\mathbf{\\Sigma}}",
+    "\\argmin": "\\mathop{\\operatorname{argmin}}\\limits",
+    "\\state": "\\mathbf{x}",
+    "\\mu": "\\mathbf{x}",
+    "\\E": "\\mathbb{E}\\left[#1\\right]",
+  };
+
+  // Render KaTeX on an element
+  function renderContent(el) {
+    if (window.renderMathInElement) {
+      renderMathInElement(el, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: katexMacros
+      });
+    }
+  }
+
+  // Load and inject a note file
+  async function loadNote(url) {
+    const resp = await fetch(url);
+    let html = await resp.text();
+    const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+    if (bodyMatch) {
+      html = bodyMatch[1];
+    }
+    // Strip outer <div id="content"> wrapper if present (full-wrapper files)
+    html = html.replace(/^\s*<div\s+id="content">([\s\S]*)<\/div>\s*$/, "$1");
+    const contentEl = document.getElementById("content");
+    contentEl.innerHTML = html;
+    renderContent(contentEl);
+  }
+
+  // Load sidebar
+  const sidebarResp = await fetch("sidebar.html");
+  document.getElementById("sidebar-container").innerHTML = await sidebarResp.text();
+
+  // Load footer
+  const footerResp = await fetch("footer.html");
+  document.body.insertAdjacentHTML("beforeend", await footerResp.text());
+
+  // Click delegation on sidebar
+  document.getElementById("sidebar-container").addEventListener("click", function(e) {
+    const link = e.target.closest("a[data-note]");
+    if (!link) return;
+    e.preventDefault();
+    const url = link.getAttribute("href");
+    const hash = url.replace(/^notes\//, "").replace(/\.html$/, "");
+    history.pushState(null, "", "#" + hash);
+    loadNote(url);
+    document.querySelectorAll("#sidebar-container a[data-note]").forEach(function(a) {
+      a.classList.remove("active");
+    });
+    link.classList.add("active");
+  });
+
+  // Handle back/forward navigation
+  window.addEventListener("hashchange", function() {
+    const hash = location.hash.slice(1);
+    if (!hash) return;
+    const link = document.querySelector('#sidebar-container a[href="notes/' + hash + '.html"]');
+    if (link) {
+      loadNote(link.getAttribute("href"));
+      document.querySelectorAll("#sidebar-container a[data-note]").forEach(function(a) {
+        a.classList.remove("active");
+      });
+      link.classList.add("active");
+    }
+  });
+
+  // Load initial note from URL hash
+  if (location.hash) {
+    const hash = location.hash.slice(1);
+    const link = document.querySelector('#sidebar-container a[href="notes/' + hash + '.html"]');
+    if (link) link.click();
+  }
+
+  // Render KaTeX on initial content
+  renderContent(document.getElementById("content"));
+});
+</script>
+</body>
+</html>

@@ -115,7 +115,7 @@ set -e
 # clear && python3 leet/problem-valid_sudoku.py
 # clear && python3 leet/problem-valid_word_abbreviation.py
 # clear && python3 leet/problem-word_break.py
-clear && python3 leet/sandbox.py
+# clear && python3 leet/sandbox.py
 
 # clear && python3 ml/mnist.py
 # clear && python3 ml/linear_discriminant_analysis.py
@@ -131,3 +131,6 @@ clear && python3 leet/sandbox.py
 
 # pip3 install -r requirements.txt
 # python3 -m robotics.note-icp
+
+
+python3 scripts/pynote.py --input-path

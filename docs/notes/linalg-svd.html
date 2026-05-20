@@ -1,0 +1,55 @@
+<h1>Singular Value Decomposition (SVD)</h1>
+
+$$
+  \mat{A} = \mat{U} \mat{\Sigma} \mat{V}^{\ast}
+$$
+
+
+<h2>How to compute SVD</h2>
+
+<ol>
+  <li>Compute eigenvalues and eigenvectors of $\mat{A}^{T} \mat{A}$
+$$
+  \begin{align}
+    \mat{A}^{T} \mat{A} \vec{v}_{1} &= \lambda_{1} \vec{v}_{1} \\
+    &\vdots \\
+    \mat{A}^{T} \mat{A} \vec{v}_{n} &= \lambda_{n} \vec{v}_{n} \\
+  \end{align}
+$$
+  </li>
+
+  <li>Make matrix $\mat{V}$ from the vectors $\vec{v}_{i}$
+$$
+  \mat{V} =
+  \begin{bmatrix}
+    \vert &  & \vert \\
+    \vec{v}_{1} & \dots  & \vec{v}_{n} \\
+    \vert &  & \vert \\
+  \end{bmatrix}
+$$
+  </li>
+
+  <li>Make a diagonal matrix $\mat{\Sigma}$ from the square roots of the eigen
+values.
+$$
+  \mat{\Sigma} =
+  \begin{bmatrix}
+    \sqrt{\lambda_1} & 0 & 0 & 0 & 0 \\
+    0 & \sqrt{\lambda_2} & 0 & 0 & 0 \\
+    0 & 0 & \ddots & 0 & 0 \\
+    0 & 0 & 0 & \ddots & 0 \\
+    0 & 0 & 0 & 0 & \sqrt{\lambda_{n}}
+  \end{bmatrix}
+$$
+  </li>
+
+  <li>Find $\mat{U}$ from
+$$
+  \begin{align}
+    \mat{A} &= \mat{U} \mat{\Sigma} \mat{V}^{T} \\
+    \mat{A} \mat{V} &= \mat{U} \mat{\Sigma} \\
+    \mat{U} &= \mat{A} \mat{V} \mat{\Sigma}^{-1}
+  \end{align}
+$$
+  </li>
+</ol>

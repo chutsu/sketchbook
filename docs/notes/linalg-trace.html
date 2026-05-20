@@ -1,0 +1,68 @@
+<h1>Trace</h1>
+
+$$
+  \text{tr}(\mat{A}) = \sum_{i} \mat{A}_{ii}
+$$
+
+<p>The trace of a matrix $\mat{A}$ is simply the sum of all of its diagonal.
+For example, let $\mat{A}$ be a matrix, with</p>
+
+$$
+\begin{align}
+  \mat{A} = \begin{bmatrix}
+    a_{11} & a_{12} & a_{13} \\
+    a_{21} & a_{22} & a_{23} \\
+    a_{31} & a_{32} & a_{33}
+  \end{bmatrix} =
+  \mat{A} = \begin{bmatrix}
+    -1 & 0 & 3 \\
+    11 & 5 & 2 \\
+    6 & 12 & -5
+  \end{bmatrix}
+\end{align}
+$$
+
+<p>then</p>
+
+$$
+  \tr{\mat{A}}
+    = \sum_{i = 1}^{3} a_{ii}
+    = a_{11} + a_{22} + a_{33}
+    = -1 + 5 + (-5)
+    = -1
+$$
+
+
+<h2>Properties</h2>
+
+$$
+\begin{align}
+  % Property 1
+  \tr{\mat{A} + \mat{B}} &= \tr{\mat{A}} + \tr{\mat{B}} \\
+  % Property 2
+  \tr{c \mat{A}} &= c \; \tr{\mat{A}} \\
+  % Property 3
+  \tr{\mat{A}} &= \tr{\mat{A}}^{T} \\
+  % Property 4
+  \tr{\mat{A}^{T} \mat{B}}
+    &= \tr{\mat{A} \mat{B}^{T}}
+    = \tr{\mat{B}^{T} \mat{A}}
+    = \tr{\mat{B} \mat{A}^{T}} \\
+  % Property 5
+  \tr{\mat{A} \mat{B}} &= \tr{\mat{B} \mat{A}} \\
+  % Property 6
+  \tr{\vec{b} \vec{a}^{T}} &= \vec{a}^{T} \vec{b} \\
+  % Property 7
+  \tr{\mat{ABCD}} &=
+    \tr{\mat{BCDA}} =
+    \tr{\mat{CDAB}} =
+    \tr{\mat{DABC}} & \text{Cyclic Property}\\
+  % Property 8
+  \tr{\mat{ABC}} &\neq \tr{\mat{ACB}} & \text{iff not symmetric} \\
+  % Property 9
+  \tr{\mat{AB}} &\neq \tr{\mat{A}} \; \tr{\mat{B}} \\
+  % Property 10
+  \tr{\mat{A} \otimes \mat{B}} &= \tr{\mat{A}} \; \tr{\mat{B}}
+    & \text{Trace of Kronecker product} \\
+\end{align}
+$$

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solving System of Linear Equations</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>Solving System of Linear Equations</h1>
+
+$$
+\mat{A} \vec{x} = \vec{b}
+$$
+<h2>Forward Substitution</h2>
+
+$$
+\mat{L} \vec{x} = \vec{b}
+$$
+$$
+\begin{bmatrix}
+  l_{11} & 0 & \dots & 0 \\
+  l_{21} & l_{22} & \dots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  l_{m1} & l_{m2} & \dots & l_{mn}
+\end{bmatrix}
+\begin{bmatrix}
+  x_{1} \\
+  x_{2} \\
+  \vdots \\
+  x_{m}
+\end{bmatrix}
+=
+\begin{bmatrix}
+  b_{1} \\
+  b_{2} \\
+  \vdots \\
+  b_{m}
+\end{bmatrix}
+$$
+<p>writing out the above,</p>
+
+$$
+&l_{11} x_{1} = b_{1} \\
+&l_{21} x_{1} + l_{22} x_{2} = b_{2} \\
+&l_{31} x_{1} + l_{32} x_{2} + l_{33} x_{3} = b_{3} \\
+&\qquad\qquad\qquad\vdots \\
+&l_{m,1} x_{1} + l_{m,2} x_{2} + \dots + l_{m,n} x_{n} = b_{n}
+$$
+<p>and rearranging to solve for $\vec{x}$,</p>
+
+$$
+x_{1} &= b_{1} / l_{11} \\
+x_{2} &= (b_{2} - l_{21} x_{1}) / l_{22} \\
+x_{3} &= (b_{3} - l_{31} x_{1} - l_{32} x_{2} ) / l_{33} \\
+&\qquad\qquad\qquad\qquad\qquad\vdots \\
+x_{m} &= (b_{m} - l_{m,1} x_{1} - l_{m,2} x_{2} - \dots
+          - l_{m,m-1} x_{m-1} ) / l_{m,n}
+$$
+<p>or more generally,</p>
+
+$$
+\boxed{
+  x_{i} = \dfrac{b_{i} - \sum_{j=1}^{i-1} l_{ij} x_{i}}{l_{ii}}
+  \quad
+  \text{where} \; 1 \leq i \leq n
+}.
+$$
+<h2>Backward Substitution</h2>
+
+$$
+\mat{U} \vec{x} = \vec{b}
+$$
+$$
+\begin{bmatrix}
+  u_{11} & u_{12} & \dots & u_{1n} \\
+  0 & u_{22} & \dots & u_{2n} \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \dots & u_{mn} \\
+\end{bmatrix}
+\begin{bmatrix}
+  x_{1} \\
+  x_{2} \\
+  \vdots \\
+  x_{m}
+\end{bmatrix}
+=
+\begin{bmatrix}
+  b_{1} \\
+  b_{2} \\
+  \vdots \\
+  b_{m}
+\end{bmatrix}
+$$
+<p>writing out the above,</p>
+
+$$
+\begin{align}
+  &u_{11} x_{1} + u_{12} x_{2} + \dots + u_{1n} x_{n} = b_{1} \\
+  &u_{22} x_{2} + \dots + u_{2n} x_{n} = b_{2} \\
+  &\qquad\qquad\qquad\vdots \\
+  &u_{mn} x_{n} = b_{n}
+\end{align}
+$$
+<p>and rearranging to solve for $\vec{x}$,</p>
+
+$$
+\begin{align}
+  x_{1} &= (b_{1} - u_{12} x_{2} - \dots - u_{1n} x_{n}) / u_{11} \\
+  x_{2} &= (b_{2} - u_{22} x_{3} - \dots - u_{2n} x_{n}) / u_{22} \\
+  &\qquad\qquad\qquad\vdots \\
+  x_{m} &= b_{m} / u_{mn}
+\end{align}
+$$
+<p>or more generally,</p>
+
+$$
+\boxed{
+  x_{i} = \dfrac{b_{i} - \sum_{j=i+1}^{1} u_{ij} x_{i}}{u_{ii}}
+  \quad
+  \text{where} \; i = n, n - 1, \cdots, 1
+}.
+$$
+<h2>Solve Least Squares with SVD</h2>
+
+<p>To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in \real^{n \times n}$, lets factor $\mat{A}$ using SVD and rearrange the</p>
+<p>terms gives,</p>
+
+$$
+\mat{A} \vec{x} &= \vec{b} \\
+\mat{U} \mat{\Sigma} \mat{V}^{{T}} \vec{x} &= \vec{b} \\
+\mat{\Sigma} \mat{V}^{{T}} \vec{x} &= \mat{U}^{{T}} \vec{b}
+$$
+<p>Note: $\mat{U}$ and $\mat{V}$ are orthogonal matrices, therefore</p>
+<p>the inverse is its transpose. Let $\vec{y} = \vec{V}^{{T}} \vec{x}$ and subbing into the above gives,</p>
+
+$$
+\mat{\Sigma} \vec{y} = \mat{U}^{{T}} \vec{b},
+$$
+<p>solve $\vec{y}$ via forward substitution. Once $\vec{y}$ is known</p>
+<p>solve for $\vec{x}$ in,</p>
+
+$$
+\mat{V}^{{T}} \vec{x} = \vec{y}
+$$
+<p>using back-substitution.</p>
+
+<h2>Solve Least Squares with QR</h2>
+
+<p>To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in \real^{n \times n}$, lets factor $\mat{A}$ using QR decomposition and</p>
+<p>rearrange the terms gives,</p>
+
+$$
+\mat{A} \vec{x} &= \vec{b} \\
+\mat{Q} \mat{R} \vec{x} &= \vec{b} \\
+\mat{R} \vec{x} &= \mat{Q}^{{T}} \vec{b}.
+$$
+<p>Note: $\mat{Q}$ is an orthogonal matrix, therefore the inverse of</p>
+<p>$\mat{Q}$ is its transpose. The R.H.S. of the last equation is simply</p>
+<p>matrix products of $\mat{Q}^{{T}}$,  and $\vec{b}$ which are</p>
+<p>known. Once the R.H.S is computed, $\vec{x}$ can be solved using</p>
+<p>back-substitution.</p>
+
+<h2>Solve Least Squares with Cholesky Decomposition</h2>
+
+<p>To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in \real^{n \times n}$, lets factor $\mat{A}$ using Cholesky decomposition</p>
+<p>gives,</p>
+
+$$
+\mat{A} \vec{x} &= \vec{b} \\
+\mat{L} \mat{L}^{{T}} \vec{x} &= \vec{b},
+$$
+<p>let $\vec{y} = \mat{L}^{{T}} \vec{x}$, subbing into the above,</p>
+
+$$
+\mat{L} \vec{y} = \vec{b}.
+$$
+<p>Solve for $\vec{y}$ using forward-substitution, and then solve for</p>
+<p>$\vec{x}$ in</p>
+
+$$
+\mat{L}^{{T}} \vec{x} = \vec{y}
+$$
+<p>using backward-substitution.</p>
+
+</div>
+</body>
+</html>

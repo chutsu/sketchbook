@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Statistics Reference</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>Statistics Reference</h1>
+
+<h2>Mean</h2>
+$$
+\mu = \dfrac{1}{N} \sum_{i=1}^{N} x_{i}
+$$
+<h2>Variance</h2>
+
+<p>Variance is a measure of spread, it is the average squared distance between</p>
+<p>measurements and the mean.</p>
+
+<p>The <strong>Population variance</strong> is defined as,</p>
+
+$$
+\sigma^{2} = \dfrac{\sum_{i=1}^{N} (x_i - \mu)^{2}}{N}.
+$$
+<p>and the <strong>Sample variance</strong> is defined as,</p>
+
+$$
+\sigma^{2} = \dfrac{\sum_{i=1}^{n} (x_i - \mu)^{2}}{n - 1}.
+$$
+<p>Where $N$ is the population size and $n$ is the sample size.</p>
+
+<p>In plain english, the population variance, standard deviation, etc, is when the</p>
+<p>whole population data is available. Sample variance, standard deviation, etc,</p>
+<p>on the other hand implies the availble data is only a subset of the population.</p>
+
+<p>The problem with sample data is that estimates without applying the $n - 1$ correction will often underestimate the true value. This is particularly</p>
+<p>true if $n$ is small. By using $n - 1$ instead of $n$ as the</p>
+<p>divsor corrects the estimate by making the result slightly larger.</p>
+
+<p>The degrees of freedom is another perspective of why $n - 1$ should be</p>
+<p>use when estimating from sample data. In statistics the degrees of freedom</p>
+<p>describe the number variables that could affect the response or output of a</p>
+<p>model. (need more explaining)</p>
+
+<h2>Standard Deviation</h2>
+
+<p>The standard deviation $\sigma$ is defined as the square root of the</p>
+<p>variance $\sigma^{2}$. It is also a measure of spread in the data.</p>
+<p>However standard deviation is often more intuitive, because instead of the</p>
+<p>spread in terms of distance from the <em>mean squared</em>, the standard</p>
+<p>deviation is simply the distance from the mean (not <em>mean squared</em>).</p>
+
+$$
+\sigma = \sqrt{\sigma^2}
+$$
+<h2>Standard Error</h2>
+
+<p>Standard error of the regression, or standard error of the estimate is the</p>
+<p>average distance between observed values and the fitted model. This metric</p>
+<p>conveys objectively how wrong the regression model is on average using the</p>
+<p>units of the response variable. A small standard error indicates observations</p>
+<p>are closer to the fitted model. Conceptually it is similar to the standard</p>
+<p>deviation, the difference is standard deviation measures te average distance of</p>
+<p>the observed alues from the mean.</p>
+
+<p>The standard error ($S$) is defined as:</p>
+
+$$
+S = \sqrt{\dfrac{\sum_{i=1}^{n} (\hat{y}_{i} - y_{i})^{2}}{df}}
+$$
+<h2>Bayes Theorem</h2>
+
+$$
+p(x, y) = p(x|y) p(y) = p(x|y) p(y)
+$$
+$$
+\underbrace{p(x|y)}_{\text{Posterior}} =
+  \dfrac{
+    \overbrace{p(x|y)}^{\text{Likelihood}}
+    \enspace
+    \overbrace{p(y)}^{\text{Prior}}
+  }{
+    \underbrace{p(y)}_{\text{Evidence}}
+  }
+$$
+</div>
+</body>
+</html>

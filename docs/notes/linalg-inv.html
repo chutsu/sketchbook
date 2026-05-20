@@ -1,0 +1,127 @@
+<h1>Inverting a Matrix</h1>
+
+Inverting a matrix in linear algebra is often avoidable and recommended.
+
+<ul>
+  <li>Inverting a Matrix with Cholesky Decomposition</li>
+  <li>Pseudo Inverse of a Matrix with SVD</li>
+</ul>
+
+
+<h2>Inverting a Matrix with Cholesky Decomposition</h2>
+
+Let matrix $\mat{A}$ be invertible, using the identity:
+
+$$
+  \mat{A} \mat{A}^{-1} = \eye
+$$
+
+we can solve for the inverse of $\mat{A}$ by using Cholesky
+decomposition, but first lets rewrite the above by first decomposing
+$\mat{A} = \mat{L} \mat{L}^{T}$ and rearrange the terms such
+that we can take advantage of back substition,
+
+$$
+  \begin{align}
+    (\mat{L} \mat{L}^{T}) \mat{A}^{-1} &= \eye \\
+    (\mat{L}^{T}) \mat{L} \mat{A}^{-1} &= \eye \\
+    \mat{L} \mat{A}^{-1} &= (\mat{L}^{T})^{-1}  \\
+  \end{align}
+$$
+
+
+<h2>Pseudo Inverse of a Matrix with SVD</h2>
+
+$$
+  \mat{A} = \mat{U} \mat{\Sigma} \mat{V}^{T}
+$$
+
+
+$$
+  \begin{align}
+    \mat{A}^{\dagger}
+       &= (\mat{A}^{T} \mat{A})^{-1} \mat{A}^{T} \\
+       &= ((\mat{U} \mat{\Sigma} \mat{V}^{T})^{T}
+             (\mat{U} \mat{\Sigma} \mat{V}^{T}))^{-1}
+          (\mat{U} \mat{\Sigma} \mat{V}^{T})^{T} \\
+       &= ((\mat{V} \mat{\Sigma} \mat{U}^{T}
+             \mat{U} \mat{\Sigma} \mat{V}^{T})^{-1}
+          (\mat{U} \mat{\Sigma} \mat{V}^{T})^{T} \\
+       &= (\mat{V} \mat{\Sigma}^{2} \mat{V}^{T})^{-1}
+             \mat{V} \mat{\Sigma} \mat{U}^{T} \\
+       &= (\mat{V}^{T})^{-1} \mat{\Sigma}^{-2} \mat{V}^{-1}
+             \mat{V} \mat{\Sigma} \mat{U}^{T} \\
+       &= \mat{V} \mat{\Sigma}^{-2} \mat{\Sigma} \mat{U}^{T} \\
+       &= \mat{V} \mat{\Sigma}^{-1} \mat{U}^{T} \\
+  \end{align}
+$$
+
+where $\mat{\Sigma}^{-1}$ is the pseudo inverse of $\mat{\Sigma}$,
+which is formed by replacing everey non-zero diagonal entry by its reciprocal
+and transposing the resulting matrix.
+
+
+<h3>Invert Lower Triangular Matrix</h3>
+
+<p>If we have a lower triangular matrix $\mat{L}$ and our objective is to
+find $\mat{L}^{-1}$, we can use the property</p>
+
+$$
+  \begin{align}
+    \mat{L}\mat{L}^{-1} = \eye,
+  \end{align}
+$$
+
+<p>and use forward-substitution to solve for $\mat{L}^{-1}$ column by
+column, staring from the first column $j$.</p>
+
+$$
+  \begin{align}
+    \begin{bmatrix}
+      l_{11} & 0 & \dots & 0 \\
+      l_{21} & l_{22} & \dots & 0 \\
+      \vdots & \vdots & \ddots & \vdots \\
+      l_{m1} & l_{m2} & \dots & l_{mn}
+    \end{bmatrix}
+    \begin{bmatrix}
+      a_{1j} \\
+      a_{2j} \\
+      \vdots \\
+      a_{mj}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+      1 \\
+      0 \\
+      \vdots \\
+      0
+    \end{bmatrix}
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    & l_{11} a_{1j} = 1 \\
+    & l_{21} a_{1j} + l_{22} a_{2j} = 0 \\
+    & \qquad\qquad\qquad\vdots \\
+    & l_{m1} a_{1j} + l_{m2} a_{2j} + \dots + l_{mn} a_{mj} = 0
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    & a_{1j} = 1 / l_{11} \\
+    & a_{2j} = - l_{21} a_{1j} / l_{22} \\
+    & \qquad\qquad\qquad\vdots \\
+    & a_{mj} = (-l_{m1} a_{1j} - l_{m2} a_{2j}
+                - \dots - l_{m,j-1} a_{m-1,j}) / l_{mn}
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    a_{ij} = \dfrac{I_{ij} - \sum_{j=i+1}^{1} l_{ij} a_{i}}{l_{ii}}
+    \quad
+    \text{where} \; i = n, n - 1, \cdots, 1
+  \end{align}
+$$

@@ -1,0 +1,81 @@
+<h1>Epipolar Geometry</h1>
+<h2>Essential Matrix</h2>
+
+$$
+   \vec{x} \mat{E} \vec{x}' = 0
+$$
+
+
+<h3>Scalar Tripple Product</h3>
+
+$$
+  \begin{align}
+    \vec{a} \times \vec{b} \;
+    = &\enspace (a_y b_z - a_z b_y) \; i \\
+      &+ (a_z b_x - a_x b_x) \; j \\
+      &+ (a_x b_y - a_y b_x) \; k
+    \\
+    \\
+    (\vec{a} \times \vec{b}) \cdot \vec{c} \;
+    = &\enspace (a_y b_z - a_z b_y) \; c_x \\
+      &+ (a_z b_x - a_x b_x) \; c_y \\
+      &+ (a_x b_y - a_y b_x) \; c_z \\
+    = & \underbrace{
+        | \vec{a} \times \vec{b} |
+      }_{\text{Area of \\\ Parallelogram}}
+      \cdot
+      \underbrace{
+        | \vec{c} | \cos{\theta}
+      }_{\text{Height of \\\ Parallelepiped}}
+  \end{align}
+$$
+
+
+<h3>Derivation of the Essential Matrix</h3>
+
+$$
+  \begin{align}
+    \vec{p}_{1} &= \lambda_{1} \vec{x}_{1} \\
+    \vec{p}_{2} &= \lambda_{2} \vec{x}_{2} \\
+    \vec{p}_{2} &= \rot \vec{p}_{1} + \pos
+  \end{align}
+$$
+
+$$
+  \begin{align}
+    % Line 1
+      \vec{p}_{2} &= \rot \vec{p}_{1} + \pos \\
+    % Line 2
+      \lambda_{1} \vec{x}_{1}
+        &= \rot \lambda_{2} \vec{x}_{2} + \pos \\
+    % Line 3
+      \lambda_{1} \vee{\pos} \vec{x}_{1}
+        &= \vee{\pos} \rot \lambda_{2} \vec{x}_{2}
+        + \underbrace{\vee{\pos} \pos}_{=0} \\
+    % Line 4
+      \lambda_{1}
+      \underbrace{\vec{x}_{1}^{T} \vee{\pos} \vec{x}_{1}}_{= 0}
+        &= \vec{x}_{1}^{T} \vee{\pos} \rot \lambda_{2} \vec{x}_{2} \\
+    % Line 5
+      \vec{x}_{1}^{T}
+        \underbrace{\vee{\pos} \rot}_{\mat{E}}
+        \vec{x}_{2}
+        &= 0
+  \end{align}
+$$
+
+
+$$
+  \begin{align}
+    \boxed{
+      \vec{x}_{1}^{T} \mat{E} \; \vec{x}_{2} = 0
+    }
+  \end{align}
+$$
+
+
+<h2>Fundamental Matrix</h2>
+
+$$
+  \vec{x}^{T} \mat{F} \; \vec{x}' = 0
+$$

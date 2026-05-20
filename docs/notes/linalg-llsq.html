@@ -1,0 +1,255 @@
+<h1>Linear Least Squares</h1>
+
+Linear problems generally have the form
+
+$$
+  \mat{A} \vec{x} = \vec{b}
+$$
+
+If $\mat{A}$ is skinny (number of rows is larger than number of columns)
+the problem is over constrained and there is no *unique* solution.
+Instead, the problem can be solved by minizming the squared error between
+$\mat{A} \vec{x}$ and $\vec{b}$. The linear least squares problem
+is then defined as,
+
+$$
+  \min_{\vec{x}} || \mat{A} \vec{x} - \vec{b} ||^{2}_{2}
+$$
+
+where the goal is to find an *approximate* solution.
+
+The local minima can be found when the derivative of the squared error is
+zero. First the squared error is expanded to give:
+
+$$
+  (\mat{A} \vec{x} - \vec{b})^{T} (\mat{A} \vec{x} - \vec{b}) \\
+  \vec{x}^{T} \mat{A}^{T} \mat{A} \vec{x} - 2 \vec{b}^{T} \mat{A} \vec{x}
+$$
+
+then by differentiating the expanded squared error with respect to
+$\vec{x}$, setting the derivative to zero, and rearranging the equation
+with respect to $\vec{x}$ gives the following:
+
+$$
+  \begin{align}
+    2 \vec{x}^{T} \mat{A}^{T} \mat{A} - 2 \vec{b}^{T} \mat{A} &= 0 \\
+    \vec{x}^{T} \mat{A}^{T} \mat{A} &= \vec{b}^{T} \mat{A} \\
+    \mat{A}^{T} \mat{A} \vec{x} &= \mat{A}^{T} \vec{b} \\
+    \vec{x} &= \left( \mat{A}^{T} \mat{A} \right)^{-1} \mat{A}^{T} \vec{b} \\
+    \vec{x} &= \mat{A}^{\dagger} \vec{b} \enspace,
+  \end{align}
+$$
+
+where $\left( \mat{A}^{T} \mat{A} \right)^{-1}
+\mat{A}^{T}$ is known as the pseudo inverse $\mat{A}^{\dagger}$.
+
+
+<h2>Forward Substitution</h2>
+
+$$
+  \mat{L} \vec{x} = \vec{b}
+$$
+
+$$
+  \begin{bmatrix}
+    l_{11} & 0 & \dots & 0 \\
+    l_{21} & l_{22} & \dots & 0 \\
+    \vdots & \vdots & \ddots & \vdots \\
+    l_{m1} & l_{m2} & \dots & l_{mn}
+  \end{bmatrix}
+  \begin{bmatrix}
+    x_{1} \\
+    x_{2} \\
+    \vdots \\
+    x_{m}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    b_{1} \\
+    b_{2} \\
+    \vdots \\
+    b_{m}
+  \end{bmatrix}
+$$
+
+writing out the above,
+
+$$
+  \begin{align}
+  &l_{11} x_{1} = b_{1} \\
+  &l_{21} x_{1} + l_{22} x_{2} = b_{2} \\
+  &l_{31} x_{1} + l_{32} x_{2} + l_{33} x_{3} = b_{3} \\
+  &\qquad\qquad\qquad\vdots \\
+  &l_{m,1} x_{1} + l_{m,2} x_{2} + \dots + l_{m,n} x_{n} = b_{n}
+  \end{align}
+$$
+
+and rearranging to solve for $\vec{x}$,
+
+$$
+  \begin{align}
+  x_{1} &= b_{1} / l_{11} \\
+  x_{2} &= (b_{2} - l_{21} x_{1}) / l_{22} \\
+  x_{3} &= (b_{3} - l_{31} x_{1} - l_{32} x_{2} ) / l_{33} \\
+  &\qquad\qquad\qquad\qquad\qquad\vdots \\
+  x_{m} &= (b_{m} - l_{m,1} x_{1} - l_{m,2} x_{2} - \dots
+            - l_{m,m-1} x_{m-1} ) / l_{m,n}
+  \end{align}
+$$
+
+or more generally,
+
+$$
+  \boxed{
+    x_{i} = \dfrac{b_{i} - \sum_{j=1}^{i-1} l_{ij} x_{i}}{l_{ii}}
+    \quad
+    \text{where} \; 1 \leq i \leq n
+  }.
+$$
+
+
+<h2>Backward Substitution</h2>
+
+$$
+  \mat{U} \vec{x} = \vec{b}
+$$
+
+
+$$
+  \begin{bmatrix}
+    u_{11} & u_{12} & \dots & u_{1n} \\
+    0 & u_{22} & \dots & u_{2n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & \dots & u_{mn} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    x_{1} \\
+    x_{2} \\
+    \vdots \\
+    x_{m}
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    b_{1} \\
+    b_{2} \\
+    \vdots \\
+    b_{m}
+  \end{bmatrix}
+$$
+
+<p>writing out the above,</p>
+
+$$
+  \begin{align}
+    &u_{11} x_{1} + u_{12} x_{2} + \dots + u_{1n} x_{n} = b_{1} \\
+    &u_{22} x_{2} + \dots + u_{2n} x_{n} = b_{2} \\
+    &\qquad\qquad\qquad\vdots \\
+    &u_{mn} x_{n} = b_{n}
+  \end{align}
+$$
+
+<p>and rearranging to solve for $\vec{x}$,</p>
+
+$$
+  \begin{align}
+    x_{1} &= (b_{1} - u_{12} x_{2} - \dots - u_{1n} x_{n}) / u_{11} \\
+    x_{2} &= (b_{2} - u_{22} x_{3} - \dots - u_{2n} x_{n}) / u_{22} \\
+    &\qquad\qquad\qquad\vdots \\
+    x_{m} &= b_{m} / u_{mn}
+  \end{align}
+$$
+
+<p>or more generally,</p>
+
+$$
+  \boxed{
+    x_{i} = \dfrac{b_{i} - \sum_{j=i+1}^{1} u_{ij} x_{i}}{u_{ii}}
+    \quad
+    \text{where} \; i = n, n - 1, \cdots, 1
+  }.
+$$
+
+
+
+<h2>Solve Least Squares with SVD</h2>
+
+<p>To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in
+\real^{n \times n}$, lets factor $\mat{A}$ using SVD and rearrange the
+terms gives,</p>
+
+$$
+  \begin{align}
+    \mat{A} \vec{x} &= \vec{b} \\
+    \mat{U} \mat{\Sigma} \mat{V}^{T} \vec{x} &= \vec{b} \\
+    \mat{\Sigma} \mat{V}^{T} \vec{x} &= \mat{U}^{T} \vec{b}
+  \end{align}
+$$
+
+Note: $\mat{U}$ and $\mat{V}$ are orthogonal matrices, therefore
+the inverse is its transpose. Let $\vec{y} = \vec{V}^{T}
+\vec{x}$ and subbing into the above gives,
+
+$$
+   \mat{\Sigma} \vec{y} = \mat{U}^{T} \vec{b},
+$$
+
+solve $\vec{y}$ via forward substitution. Once $\vec{y}$ is known
+solve for $\vec{x}$ in,
+
+$$
+  \mat{V}^{T} \vec{x} = \vec{y}
+$$
+
+using back-substitution.
+
+
+
+<h2>Solve Least Squares with QR</h2>
+
+To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in
+\real^{n \times n}$, lets factor $\mat{A}$ using QR decomposition and
+rearrange the terms gives,
+
+$$
+  \begin{align}
+    \mat{A} \vec{x} &= \vec{b} \\
+    \mat{Q} \mat{R} \vec{x} &= \vec{b} \\
+    \mat{R} \vec{x} &= \mat{Q}^{T} \vec{b}.
+  \end{align}
+$$
+
+Note: $\mat{Q}$ is an orthogonal matrix, therefore the inverse of
+$\mat{Q}$ is its transpose. The R.H.S. of the last equation is simply
+matrix products of $\mat{Q}^{T}$,  and $\vec{b}$ which are
+known. Once the R.H.S is computed, $\vec{x}$ can be solved using
+back-substitution.
+
+
+
+<h2>Solve Least Squares with Cholesky Decomposition</h2>
+
+To solve $\mat{A} \vec{x} = \vec{b}$ with non-singular $\mat{A} \in
+\real^{n \times n}$, lets factor $\mat{A}$ using Cholesky decomposition
+gives,
+
+$$
+  \begin{align}
+    \mat{A} \vec{x} &= \vec{b} \\
+    \mat{L} \mat{L}^{T} \vec{x} &= \vec{b},
+  \end{align}
+$$
+
+let $\vec{y} = \mat{L}^{T} \vec{x}$, subbing into the above,
+
+$$
+  \mat{L} \vec{y} = \vec{b}.
+$$
+
+Solve for $\vec{y}$ using forward-substitution, and then solve for
+$\vec{x}$ in
+
+$$
+  \mat{L}^{T} \vec{x} = \vec{y}
+$$
+
+using backward-substitution.

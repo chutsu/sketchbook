@@ -1,0 +1,411 @@
+<h1>Quaternions</h1>
+
+<p>A quaternion, $\vec{q} \in \real^{4}$, generally has the following form
+
+$$
+  \quat = q_{w} + q_{x} \mathbf{i} + q_{y} \mathbf{j} + q_{z} \mathbf{k},
+$$
+
+<p>where $\{ q_{w}, q_{x}, q_{y}, q_{z} \} \in \real$ and $\{ \mathbf{i},
+\mathbf{j}, \mathbf{k} \}$ are the imaginary numbers satisfying</p>
+
+$$
+  \begin{align}
+    &\mathbf{i}^{2}
+    = \mathbf{j}^{2}
+    = \mathbf{k}^{2}
+    = \mathbf{ijk}
+    = -1 \\
+    \mathbf{ij} = -\mathbf{ji} &= \mathbf{k}, \enspace
+    \mathbf{jk} = -\mathbf{kj} = \mathbf{i}, \enspace
+    \mathbf{ki} = -\mathbf{ik} = \mathbf{j}
+  \end{align}
+$$
+
+<p>corresponding to the Hamiltonian convention. The quaternion can be written
+as a 4 element vector consisting of a \textit{real} (\textit{scalar}) part,
+$q_{w}$, and \textit{imaginary} (\textit{vector}) part $\quat_{v}$ as,</p>
+
+$$
+  \quat =
+  \begin{bmatrix} q_{w} \\ \quat_{v} \end{bmatrix} =
+  \begin{bmatrix} q_{w} \\ q_{x} \\ q_{y} \\ q_{z} \end{bmatrix}
+$$
+
+<p>There are other quaternion conventions, for example, the JPL convention. A
+more detailed discussion between Hamiltonian and JPL quaternion convention is
+discussed in \cite{Sola2017}.</p>
+
+
+<h2>Main Quaternion Properties</h2>
+
+<h3>Sum</h3>
+
+<p>Let $\vec{p}$ and $\vec{q}$ be two quaternions, the sum of both
+quaternions is,</p>
+
+$$
+  \vec{p} \pm \vec{q} =
+  \begin{bmatrix} p_w \\ \vec{p}_{v} \end{bmatrix}
+  \pm
+  \begin{bmatrix} q_w \\ \vec{q}_{v} \end{bmatrix} =
+  \begin{bmatrix} p_w \pm q_w \\ \vec{p}_{v} \pm \vec{q}_{v} \end{bmatrix}.
+$$
+
+<p>The sum between two quaternions $\vec{p}$ and $\vec{q}$ is
+**commutative** and **associative**.</p>
+
+$$
+  \vec{p} + \vec{q} = \vec{q} + \vec{p}
+$$
+
+$$
+  \vec{p} + (\vec{q} + \vec{r}) = (\vec{p} + \vec{q}) + \vec{r}
+$$
+
+
+<h3>Product</h3>
+
+<p>The quaternion multiplication (or product) of two quaternions $\vec{p}$ and
+$\vec{q}$, denoted by $\otimes$ is defined as</p>
+
+$$
+  \begin{align}
+    \vec{p} \otimes \vec{q}
+      &=
+      (p_w + p_x \mathbf{i} + p_y \mathbf{j} + p_z \mathbf{k})
+      (q_w + q_x \mathbf{i} + q_y \mathbf{j} + q_z \mathbf{k}) \\
+      &=
+      \begin{matrix}
+        &(p_w q_w - p_x q_x - p_y q_y - p_z q_z)& \\
+        &(p_w q_x + p_x q_w + p_y q_z - p_z q_y)& \mathbf{i}\\
+        &(p_w q_y - p_y q_w + p_z q_x + p_x q_z)& \mathbf{j}\\
+        &(p_w q_z + p_z q_w - p_x q_y + p_y q_x)& \mathbf{k}\\
+      \end{matrix} \\
+      &=
+      \begin{bmatrix}
+        p_w q_w - p_x q_x - p_y q_y - p_z q_z \\
+        p_w q_x + p_x q_w + p_y q_z - p_z q_y \\
+        p_w q_y - p_y q_w + p_z q_x + p_x q_z \\
+        p_w q_z + p_z q_w - p_x q_y + p_y q_x \\
+      \end{bmatrix} \\
+      &=
+      \begin{bmatrix}
+        p_w q_w - \vec{p}_{v}^{T} \vec{q}_{v} \\
+        p_w \vec{q}_{v} + q_w \vec{p}_{v} + \vec{p}_{v} \times \vec{q}_{v}
+      \end{bmatrix}.
+  \end{align}
+$$
+
+<p>The quaternion product is <b>not commutative</b> in the general case. There
+are exceptions to the general non-commutative rule, where either $\vec{p}$ or
+$\vec{q}$ is real such that $\vec{p}_{v} \times \vec{q}_{v} = 0$, or when both
+$\vec{p}_v$ and $\vec{q}_v$ are parallel, $\vec{p}_v || \vec{q}_v$. Only in
+these cirmcumstances is the quaternion product commutative.,</p>
+
+$$
+  {\vec{p} \otimes \vec{q} \neq \vec{q} \otimes \vec{p}} \enspace .
+$$
+
+<p>The quaternion product is however **associative**,</p>
+
+$$
+  \vec{p} \otimes (\vec{q} \otimes \vec{r})
+  = (\vec{p} \otimes \vec{q}) \otimes \vec{r}
+$$
+
+<p>and **distributive over the sum**</p>
+
+$$
+  \vec{p} \otimes (\vec{q} + \vec{r}) =
+  \vec{p} \otimes \vec{q} + \vec{p} \otimes \vec{r}
+  \quad \text{and} \quad
+  (\vec{p} \otimes \vec{q}) + \vec{r} =
+  \vec{p} \otimes \vec{r} + \vec{q} \otimes \vec{r}
+$$
+
+<p>The quaternion product can alternatively be expressed in matrix form as</p>
+
+$$
+  \vec{p} \otimes \vec{q} = [\vec{p}]_{L} \vec{q}
+  \quad \text{and} \quad
+  \vec{p} \otimes \vec{q} = [\vec{q}]_{R} \vec{p} \enspace ,
+$$
+
+<p>where $[\vec{p}]_{L}$ and $[\vec{q}]_{R}$ are the left and right
+quaternion-product matrices which are derived from
+\eqref{eq:quaternion_product},</p>
+
+$$
+  [\vec{p}]_{L} =
+  \begin{bmatrix}
+    p_w & -p_x & -p_y & -p_z \\
+    p_x & p_w & -p_z & p_y \\
+    p_y & p_z & p_w & -p_x \\
+    p_z & -p_y & p_x & p_w
+  \end{bmatrix},
+  \quad \text{and} \quad
+  [\vec{q}]_{R} =
+  \begin{bmatrix}
+    q_w & -q_x & -q_y & -q_z \\
+    q_x & q_w & q_z & -q_y \\
+    q_y & -q_z & q_w & q_x \\
+    q_z & q_y & -q_x & q_w
+  \end{bmatrix},
+$$
+
+<p>or inspecting a compact form can be derived as,</p>
+
+$$
+  [\vec{p}]_{L} =
+  \begin{bmatrix}
+    0 & -\vec{p}_{v}^{T} \\
+    \vec{p}_w \I_{3 \times 3} + \vec{p}_{v} &
+    \vec{p}_w \I_{3 \times 3} -\vee{\vec{p}_{v}}
+  \end{bmatrix}
+$$
+
+<p>and</p>
+
+$$
+  [\vec{q}]_{R} =
+  \begin{bmatrix}
+    0 & -\vec{q}_{v}^{T} \\
+    \vec{q}_w \I_{3 \times 3} + \vec{q}_{v} &
+    \vec{q}_w \I_{3 \times 3} -\vee{\vec{q}_{v}}
+  \end{bmatrix},
+$$
+
+<p>where $\vee{\bullet}$ is the skew operator that produces a matrix cross
+product matrix, and is defined as,</p>
+
+$$
+  \vee{\vec{v}} =
+  \begin{bmatrix}
+    0 & -v_{3} & v_{2} \\
+    v_{3} & 0 & -v_{1} \\
+    -v_{2} & v_{1} & 0
+  \end{bmatrix},
+  \quad
+  \vec{v} \in \real^{3}
+$$
+
+
+<h3>Conjugate</h3>
+
+<p>The conjugate operator for quaternion, ${(\bullet)}^{\ast}$, is defined
+as</p>
+
+$$
+  \quat^{\ast}
+  =
+  \begin{bmatrix}
+    q_w \\
+    - \vec{q}_v
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    q_w \\
+    - q_x \\
+    - q_y \\
+    - q_z
+  \end{bmatrix}.
+$$
+
+<p>This has the properties</p>
+
+$$
+  \quat \otimes \quat^{-1}
+  = \quat^{-1} \otimes \quat
+  = q_{w}^{2} + q_{x}^{2} + q_{y}^{2} + q_{z}^{2}
+  =
+  \begin{bmatrix}
+    q_{w}^{2} + q_{x}^{2} + q_{y}^{2} + q_{z}^{2} \\
+    \vec{0}
+  \end{bmatrix},
+$$
+
+and
+
+$$
+  (\vec{p} \otimes \vec{q})^{\ast}
+  = \vec{q}^{\ast} \otimes \vec{p}^{\ast}.
+$$
+
+
+
+<h3>Norm</h3>
+
+<p>The norm of a quaternion is defined by</p>
+
+$$
+  \begin{align}
+   \norm{\quat} &= \sqrt{\quat \otimes \quat^{\ast}} \\
+     &= \sqrt{\quat^{\ast} \otimes \quat} \\
+     &= \sqrt{q_{w}^{2} + q_{x}^{2} + q_{y}^{2} + q_{z}^{2}}
+     \enspace \in \real,
+  \end{align}
+$$
+
+<p>and has the property</p>
+
+$$
+  \norm{\vec{p} \otimes \vec{q}} =
+  \norm{\vec{q} \otimes \vec{p}} =
+  \norm{\vec{p}} \norm{\vec{q}}
+$$
+
+
+<h3>Quaternion from Two Vectors</h3>
+
+TODO: Need to reword the beginning.
+Using the properties of the cross and dot product
+
+$$
+  \begin{align}
+    \vec{u} \cdot \vec{v} &=
+      \norm{\vec{u}} \norm{\vec{v}} \cos \theta \\
+    \norm{\vec{u} \times \vec{v}} &=
+      \norm{\vec{u}} \norm{\vec{v}} \norm{\sin \theta} ,
+  \end{align}
+$$
+
+<p>the axis angle, $\boldsymbol{\theta} \in \real^{3}$, can be obtained from
+$\vec{u}$ and $\vec{v}$ with</p>
+
+$$
+  \begin{align}
+    %-- Axis-angle
+    \boldsymbol{\theta} &= \theta \vec{e} \\
+    % -- Angle
+    \theta &= \cos^{-1}(
+      \dfrac{\vec{u} \cdot \vec{v}}
+            {\norm{\vec{u}} \norm{\vec{v}}}
+    ) \quad , \enspace \theta \in \real \\
+    % -- Axis
+    \vec{e} &=
+      \dfrac{\vec{u} \times \vec{v}}{\norm{\vec{u} \times \vec{v}}}
+      \quad , \enspace \vec{e} \in \real^{3}
+  \end{align}
+$$
+
+<p>where $\vec{e}$ is the unit vector that defines the rotation axis and
+$\theta$ is the rotation angle about $\vec{e}$. Once the axis angle,
+$\boldsymbol{\theta}$, is obtained a quaternion can be formed</p>
+
+$$
+  \quat =
+    \cos \dfrac{\theta}{2}
+    + \vec{i} \sin \dfrac{\theta}{2} e_{x}
+    + \vec{j} \sin \dfrac{\theta}{2} e_{y}
+    + \vec{k} \sin \dfrac{\theta}{2} e_{z}
+$$
+
+
+<h3>Example: Attitude from gravity and accelerometer vectors</h3>
+
+<p>In robotics knowing the attitude of the system is often required. An
+Inertial Measurement Unit (IMU) is commonly used to obtain this information.
+Using the method described previously, a gravity vector along with an
+accelerometer measurement vector can be used to obtain an attitude in form of a
+quaternion.</p>
+
+<p>Let $\vec{g} \in \Real{3}$ be the gravity vector, and $\vec{a}_{m} \in
+\Real{3}$ be the accelerometer measurement from an IMU. With the two vectors
+$\vec{g}$ and $\vec{a}_{m}$ a quaternion $\quat_{WS}$ expressing the rotation
+of the IMU sensor frame, $\frame_{S}$, with respect to the world frame,
+$\frame_{W}$, can be calculated given that values for $\vec{g}$ and
+$\vec{a}_{m}$ are known. For example let</p>
+
+$$
+  \begin{align}
+    % -- Gravity vector
+    \vec{g} &= \begin{bmatrix} 0 & 0 & -9.81 \end{bmatrix}^{T} \\
+    % -- Accelerometer measurement vector
+    \vec{a}_{m} &=
+      \begin{bmatrix}
+        9.2681 &
+        -0.310816 &
+        -3.14984
+        \end{bmatrix}^{T}
+    ,
+  \end{align}
+$$
+
+<p>taken from the first measurement of the <code>imu_april</code> calibration
+sequence of the EuRoC MAV dataset.</p>
+
+<p>Before calculating the axis-angle, however, it should be noted that when an
+accelerometer is at rest the measurement reading in the z-axis is positive
+instead of negative. The reason is accelerometers measures acceleration by
+measuring the displacement of a proof mass that is suspended with springs. For
+example, if gravity is ignored and the accelerometer moves upwards, the proof
+mass will be displaced towards the bottom of the accelerometer. This is
+interpreted as an acceleration in the upwards direction, and so when the
+accelerometer is at rest on a flat surface, gravity pulls on the proof mass
+yeilding a positive measurement in the upwards direction. To resolve this issue
+the gravity vector is negated, and so $\vec{u} = -\vec{g}$ and $\vec{v} =
+\vec{a}_{m}$. Using :eq:$axis_angle$ the axis-angle obtained is:</p>
+
+$$
+  \begin{align}
+    % -- Axis-Angle
+    \theta &= 1.8982 \\
+    \vec{e} &= \Transpose{
+      \begin{bmatrix}
+        0.03352 &
+        0.99944 &
+        0.00000
+      \end{bmatrix}
+    }
+  \end{align}
+$$
+
+Finally the quaternion, $\quat_{WS}$, can be calculated using
+:eq:$axis_angle_to_quaternion$ resulting in
+
+$$
+  \begin{align}
+    \quat_{WS} = \Transpose{
+      \begin{bmatrix}
+        0.58240 &
+        0.02725 &
+        0.81245 &
+        0.00000
+      \end{bmatrix}
+    } \enspace .
+  \end{align}
+$$
+
+
+
+<h3>Quaternion to Rotation Matrix</h3>
+
+$$
+  \rot\{\quat \} = \begin{bmatrix}
+    q_w^2 + q_x^2 - q_y^2 - q_z^2
+    & 2(q_x q_y - q_w q_z)
+    & 2(q_x q_z + q_w q_y) \\
+    2(q_x q_y + q_w q_z)
+    & q_w^2 - q_x^2 + q_y^2 - q_z^2
+    & 2(q_y q_z - q_w q_x) \\
+    2(q_x q_y - q_w q_y)
+    & 2(q_y q_z + q_w q_x)
+    & q_w^2 - q_x^2 - q_y^2 + q_z^2
+  \end{bmatrix}
+$$
+
+
+<h3>Rotation Matrix to Quaternion</h3>
+
+$$
+  \begin{align}
+    q_w &= \dfrac{\sqrt{1 + m_{11} + m_{22} + m_{33}}}{2} \\
+    q_x &= \dfrac{m_{32} - m_{23}}{4 q_w} \\
+    q_y &= \dfrac{m_{13} - m_{31}}{4 q_w} \\
+    q_z &= \dfrac{m_{21} - m_{02}}{4 q_w}
+  \end{align}
+$$
+
+Note, while the equations seems straight forward in practice, however,the trace
+of the rotation matrix need to be checked inorder to guarantee correctness.

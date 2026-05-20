@@ -1,0 +1,410 @@
+<h1>Model Predictive Control</h1>
+
+<p>Position tracking is achieved by means of a cascaded connection of a Model
+Predictive Controller (MPC) for the MAV position and a PID controller for its
+attitude. This approach is motivated by the fact the majority of commercially
+available flight controllers come with a pre-implemented attitude controller
+which requires little or even no tuning, enabling easy adaptation to a wide
+range of platforms.</p>
+
+
+<h2>Linear Model</h2>
+
+<p>The linear model of the MAV in navigation frame $\frame_{N}$ (or body
+frame) is,</p>
+
+$$
+  \dot{\vec{v}}_{N} = \begin{bmatrix}
+    g \dot{\theta} - c_{x} \dot{x} \\
+    -g \dot{\phi} - c_{y} \dot{y} \\
+    T - c_{z} \dot{z}
+  \end{bmatrix}
+$$
+
+<p>The closed loop attitude dynamics is modelled as a first order system.
+Namely the roll and pitch are:</p>
+
+$$
+  \begin{align}
+    \ddot{\theta} &=
+      -b_{\ddot{\theta}\theta} \theta
+      -b_{\ddot{\theta}\dot{\theta}} \dot{\theta}
+      +b_{\theta^{r}} \theta^{r} \\
+    \ddot{\phi} &=
+      -b_{\ddot{\phi}\phi} \phi
+      -b_{\ddot{\phi}\dot{\phi}} \dot{\phi}
+      +b_{\phi^{r}} \phi^{r}
+  \end{align}
+$$
+
+<p>where $b_{(\cdot)}$ are constants of the first order system. The
+values of these constants are obtained by performing system identification of
+the MAV. Yaw is omitted above because the reference yaw command
+$\psi^{r}$ will be passed directly to the inner-loop attitude control,
+therefore it is not considered here in the outer-loop linear MPC
+controller.</p>
+
+<p>The state vector $\state$ is,</p>
+
+$$
+  \state = \begin{bmatrix}
+    x \enspace \dot{x} \enspace \theta \enspace \dot{\theta}
+    \enspace \enspace
+    y \enspace \dot{y} \enspace \phi \enspace \dot{\phi} \enspace
+    \enspace \enspace
+    z \enspace \dot{z}
+  \end{bmatrix} \in \real^{10}
+$$
+
+<p>The input vector $\vec{u}$ to the linear model contains reference roll
+$\theta^{r}$, pitch $\phi^{r}$ and thrust $T^{r}$, or written
+as</p>
+
+$$
+  \vec{u} = \begin{bmatrix}
+    \theta^{r}
+    \enspace \phi^{r}
+    \enspace T^{r}
+  \end{bmatrix}
+$$
+
+<p>Time-invariant state space representation:</p>
+
+$$
+  \begin{align}
+    \dot{\state} &=
+        \underbrace{
+            \begin{bmatrix}
+                \mat{A}_{\text{LON}} & \vec{0} & \vec{0} \\
+                \vec{0} & \mat{A}_{\text{LAT}} & \vec{0} \\
+                \vec{0} & \vec{0} & \mat{A}_{\text{ALT}}
+            \end{bmatrix}
+        }_{\mat{A}}
+        \vec{x}
+        +
+        \underbrace{
+            \begin{bmatrix}
+                \mat{B}_{\text{LON}} & \vec{0} & \vec{0} \\
+                \vec{0} & \mat{B}_{\text{LAT}} & \vec{0} \\
+                \vec{0} & \vec{0} & \mat{B}_{\text{ALT}}
+            \end{bmatrix}
+        }_{\mat{B}} \vec{u} \\
+    \vec{y} &= \mat{C} \vec{x}
+  \end{align}
+$$
+
+<p>where</p>
+
+$$
+  \begin{align}
+    \mat{A}_{\text{LON}} &= \begin{bmatrix}
+        0 & 1 & 0 \\
+        0 & -c_{x} & g \\
+        0 & 0 & -b_{\theta}
+    \end{bmatrix}
+    ,&
+    &\quad
+    &\mat{B}_{\text{LON}} &= \begin{bmatrix}
+        0 \\
+        0 \\
+        b_{\theta^{r}}
+    \end{bmatrix} \\
+    \mat{A}_{\text{LAT}} &= \begin{bmatrix}
+        0 & 1 & 0 \\
+        0 & -c_{x} & -g \\
+        0 & 0 & -b_{\phi}
+    \end{bmatrix}
+    ,&
+    &\quad
+    &\mat{B}_{\text{LAT}} &= \begin{bmatrix}
+        0 \\
+        0 \\
+        b_{\phi^{r}}
+    \end{bmatrix} \\
+    \mat{A}_{\text{ALT}} &= \begin{bmatrix}
+        0 & 1 \\
+        0 & -c_{z}
+    \end{bmatrix}
+    ,&
+    &\quad
+    &\mat{B}_{\text{ALT}} &= \begin{bmatrix}
+        0 \\
+        1
+    \end{bmatrix}
+  \end{align}
+$$
+
+$$
+    % C Matrix
+    \mat{C} = \mat{I}_{8 \times 8} .
+$$
+
+
+<p>Since the controller is implemented in discrete time, the equations are
+discretized using zero order hold for the input $u$. The discrete equivalent of
+the matrices $\mat{A}$, $\mat{B}$ and $\mat{C}$ can be
+obtained by.</p>
+
+$$
+  \begin{align}
+    \mat{A}_{d} &= e^{\mat{A} dt} \\
+    \mat{B}_{d} &= \left( \int_{0}^{dt} e^{\mat{A}\tau} d\tau \right) \mat{B} \\
+    \mat{C}_{d} &= \mat{C}
+  \end{align}
+$$
+
+<p>The discretization step $dt$ coincides with the control update rate and was set
+to 50ms.</p>
+
+
+<h2>MPC Formulated as a QP Problem</h2>
+
+<p>Our goal is to obtain an optimal input sequence $\bar{\vec{u}}^{\ast} =
+\vec{u}_{0}^{\ast} \dots \vec{u}_{N-1}^{\ast}$ which is the solution of the following
+optimization problem:</p>
+
+$$
+  \begin{align}
+    & \bar{\vec{u}}^{\ast} = \argmin{\vec{u}_{0} \dots \vec{u}_{N - 1}} J, \\
+    s.t. : \enspace
+        & \state_{k + 1} = \mat{A}_{d} \state_{k} + \mat{B}_{d} \vec{u}_{k}, \\
+        & \mathbf{y}_{k} = \mat{C}_{d} \state_{k}, \\
+        & \mathbf{x}_{0} = \hat{\mat{x}}_{0}, \\
+        & \hat{\vec{u}}_{\text{min}} \leq \vec{u} \leq \vec{u}_{\text{max}}
+  \end{align}
+$$
+
+$$
+  J = \sum_{k = 0}^{N - 1}
+  \left(
+    \norm{\mat{Q}_{k + 1} (\vec{y}_{k + 1} - \vec{s}_{k + 1}^{y})}_{2}^{2}
+    + \norm{\mat{R}_{k} (\vec{u}_{k} - \vec{s}_{k}^{u})}_{2}^{2}
+  \right)
+$$
+
+<p>where:</p>
+
+<ul>
+  <li>
+    $\state_{k + 1} \in \real^{n}$: system state at time $k$
+  </li>
+  <li>
+    $\hat{\state}_{0} \in \real^{n}$: estimated state at time 0
+  </li>
+  <li>
+    $\vec{y}_{k} \in \real^{p}$: system output at time $k$
+  </li>
+  <li>
+    $\vec{u}_{k}$: system input at time $k$
+  </li>
+  <li>
+    $\vec{s}_{k}^{y} \in \real^{p}$: reference output at time $k$ (given)
+  </li>
+  <li>
+    $\vec{s}_{k}^{u} \in \real^{m}$: reference input at time $k$
+    (given)
+  </li>
+  <li>
+    $\mat{R}_{k} \in \real^{m \times m}$: input gain matrix (tuning
+    parameters)
+  </li>
+  <li>
+    $\mat{Q}_{k} \in \real^{n \times n}$: output gain matrix (tuning
+    parameters)
+  </li>
+</ul>
+
+<p>By concatenating the two squared 2-norms that appear in the cost function
+$J$, we can rewrite it as:</p>
+
+$$
+    J = \norm{\begin{matrix}
+        \mat{Q}_{1} (\vec{y}_{1} - \vec{s}_{1}^{y}) \\
+        \mat{Q}_{2} (\vec{y}_{2} - \vec{s}_{2}^{y}) \\
+        \vdots \\
+        \mat{Q}_{N} (\vec{y}_{N} - \vec{s}_{N}^{y}) \\
+        \mat{R}_{0} (\vec{u}_{0} - \vec{s}_{0}^{u}) \\
+        \mat{R}_{1} (\vec{u}_{1} - \vec{s}_{1}^{u}) \\
+        \vdots \\
+        \; \mat{R}_{N-1} (\vec{u}_{N-1} - \vec{s}_{N-1}^{u}) \\
+    \end{matrix}}_{2}^{2}
+$$
+
+<p>and stacking the $\mat{Q}$ and $\mat{R}$ as,</p>
+
+$$
+  J = \norm{
+    \begin{matrix}
+      \; \bar{\mat{Q}}(\bar{\vec{y}} - \bar{\vec{s}}^{y}) \\
+      \; \bar{\mat{R}}(\bar{\vec{u}} - \bar{\vec{s}}^{u})
+    \end{matrix}
+    }_{2}^{2}.
+$$
+
+<p>The problem with the current formulation is the equality constraints
+$\vec{x}_{k + 1}$, $\vec{y}_{k}$ and $\state_{0}$ may not be
+valid in practice due to imperfect model, and/or sensor measurement noise. If
+the equality constraints are invalid the optimized solution will not be
+feasible. Instead, the equality constraints can be eliminated by rewriting
+$\bar{\vec{y}}$ to depend only on the initial state $\state_{0}$
+instead of $\state_{k - 1}$. In other words from this,</p>
+
+$$
+  \begin{align}
+    \state_{1} &= \mat{A}_{d} \state_{0} + \mat{B}_{d} \vec{u}_{0} \\
+    \state_{2} &= \mat{A}_{d} \state_{1} + \mat{B}_{d} \vec{u}_{1} \\
+    \state_{3} &= \mat{A}_{d} \state_{2} + \mat{B}_{d} \vec{u}_{2} \\
+    & \qquad \qquad \vdots \\
+    \state_{N} &= \mat{A}_{d} \state_{N-1} + \mat{B}_{d} \vec{u}_{N-1}
+  \end{align}
+$$
+
+<p>to this,</p>
+
+$$
+  \begin{align}
+    \state_{1} &= \mat{A}_{d} \state_{0} + \mat{B}_{d} \vec{u}_{0} \\
+    \state_{2} &= \mat{A}_{d}^{2} \state_{0}
+        + \mat{A}_{d} \mat{B}_{d} \vec{u}_{0}
+        + \mat{B}_{d} \vec{u}_{1} \\
+    \state_{3} &= \mat{A}_{d}^{3} \state_{0}
+        + \mat{A}_{d}^{2} \mat{B}_{d} \vec{u}_{0}
+        + \mat{A}_{d} \mat{B}_{d} \vec{u}_{1}
+        + \mat{B}_{d} \vec{u}_{2} \\
+    & \qquad \qquad \qquad \vdots \\
+    \state_{N} &= \mat{A}_{d}^{N} \state_{0}
+        + \mat{A}_{d}^{N-1}\mat{B}_{d} \vec{u}_{0}
+        + \dots
+        + \mat{B} \vec{u}_{N-1}
+    \bar{\state} = \mathbf{\Phi} \state_{0} + \mathbf{\Gamma} \bar{\vec{u}}
+  \end{align}
+$$
+
+<p>where</p>
+
+$$
+  \begin{align}
+    % xbar
+    &\bar{\state} = \begin{bmatrix}
+        \state_{1} \\
+        \state_{2} \\
+        \dot{\vec{v}} \\
+        \state_{N}
+    \end{bmatrix},
+    % Phi
+    &\mathbf{\Phi} = \begin{bmatrix}
+        \mat{A}_{d} \\
+        \mat{A}_{d}^{2} \\
+        \dot{\vec{v}} \\
+        \mat{A}_{d}^{N}
+    \end{bmatrix} \\
+    % Gamma
+    &\mathbf{\Gamma} = \begin{bmatrix}
+        \mat{B}_{d} & \mathbf{0} & \dots & \mathbf{0} \\
+        \mat{A}_{d} \mat{B}_{d} & \mat{B}_{d} & \dots & \mathbf{0} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        \mat{A}_{d}^{N-1} \mat{B}_{d} & \mat{A}_{d}^{N-2} \mat{B}_{d} & \dots & \mat{B}_{d} \\
+    \end{bmatrix},
+    % ubar
+    &\bar{\vec{u}} = \begin{bmatrix}
+        \vec{u}_{0} \\
+        \vec{u}_{1} \\
+        \vdots \\
+        \vec{u}_{N-1}
+    \end{bmatrix} .
+  \end{align}
+$$
+
+<p>Rewriting $\bar{\vec{y}}$ with the above,</p>
+
+$$
+    \bar{\vec{y}} = \bar{\mat{C}} \bar{\vec{x}}
+        = \bar{\mat{C}} \mathbf{\Phi} \hat{\state}
+        + \bar{\mat{C}} \mathbf{\Gamma} \bar{\vec{u}},
+$$
+
+<p>and substituting into the cost function $J$, collect the $\bar{\vec{u}}$
+terms and rearrange so that it is in the form of $\mat{A}\vec{\state} -
+\vec{b}$,</p>
+
+$$
+  \begin{align}
+    % Line 1
+    J &= \norm{\begin{matrix}
+        \bar{\mat{Q}} (\bar{\mat{C}} \mathbf{\Phi} \state_{0}
+            + \mathbf{\Gamma} \bar{\vec{u}}
+            - \bar{\vec{s}}^{y}) \\
+        \bar{\mat{R}} (\bar{\vec{u}} - \bar{\vec{s}}^{u})
+    \end{matrix}}_{2}^{2} \\
+    % Line 2
+    &= \norm{\begin{matrix}
+        \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Phi} \state_{0}
+            + \bar{\mat{Q}} \mathbf{\Gamma} \bar{\vec{u}}
+            - \bar{\mat{Q}} \bar{\vec{s}}^{y} \\
+        \bar{\mat{R}} \bar{\vec{u}} - \bar{\mat{R}} \bar{\vec{s}}^{u}
+    \end{matrix}}_{2}^{2} \\
+    % Line 3
+    &= \norm{
+        \underbrace{
+            \left(\begin{matrix}
+                \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Gamma} \\
+                \bar{\mat{R}}
+            \end{matrix}\right) \bar{\vec{u}}
+        -
+            \left(\begin{matrix}
+                \bar{\mat{Q}} \bar{\vec{s}}^{y}
+                  + \bar{\mat{Q}} \bar{\mat{C}}
+                    \mathbf{\Phi} \state_{0} \\
+                \bar{\mat{R}} \bar{\vec{s}}^{u}
+            \end{matrix}\right)
+        }_{\mat{A}\vec{x} - \vec{b}}
+    }_{2}^{2}
+  \end{align}
+$$
+
+<p>then expanding the equation out and ignoring the constant term (i.e.
+$\vec{b}^{T}\vec{b}$) gives,</p>
+
+$$
+  \begin{align}
+    J =
+    \underbrace{
+        \bar{\vec{u}}^{T}
+        \left(\begin{matrix}
+            \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Gamma} \\
+            \bar{\mat{R}}
+        \end{matrix}\right)^{T}
+        \left(\begin{matrix}
+            \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Gamma} \\
+            \bar{\mat{R}}
+        \end{matrix}\right)
+        \bar{\vec{u}} \\
+        - 2
+        \left(\begin{matrix}
+            \bar{\mat{Q}} \bar{\vec{s}}^{y}
+            + \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Phi} \state_{0} \\
+            \bar{\mat{R}} \bar{\vec{s}}^{u}
+        \end{matrix}\right)^{T}
+        \left(\begin{matrix}
+            \bar{\mat{Q}} \bar{\mat{C}} \mathbf{\Gamma} \\
+            \bar{\mat{R}}
+        \end{matrix}\right)
+        \bar{\vec{u}}
+    }_{
+        \vec{x}^{T} \mat{A}^{T}\mat{A}\vec{x}
+        - 2 \vec{b}^{T} \mat{A} \vec{x}
+    }
+  \end{align}
+$$
+
+<p>With the cost function in quadratic form, the optimization problem is now
+transformed into the following equivalent QP with inequality constraints:</p>
+
+$$
+  \begin{align}
+    & \bar{\vec{u}}^{\ast} = \argmin{\mu_{0} \dots \vec{u}_{N - 1}}
+      J , \\
+  s.t. :
+    & \hat{\vec{u}}_{\text{min}} \leq \vec{u} \leq \vec{u}_{\text{max}}
+  \end{align}
+$$

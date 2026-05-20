@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IMU Preintegration</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>IMU Preintegration</h1>
+
+<h2>IMU Motion Model</h2>
+
+<p>The accelerometer and gyroscope measurements from the IMU are given by:</p>
+
+$$
+\mathbf{a}_{m} &= \acc + \mathbf{b}_{a} + \rot_{SW} \gravity + \mathbf{n}_{a} \\
+\boldsymbol{\omega}_{m} &= \boldsymbol{\omega} + \mathbf{b}_{g} + \mathbf{n}_{g}
+$$
+<p>Given two time instances $k$ and $k+1$</p>
+
+$$
+\begin{align}
+  % Position
+  \pos_{{WS}_{k+1}} &=
+    \pos_{{WS}_{k}}
+    + \vel_{{WS}_{k+1}} \Delta{t_{k,k+1}}
+    + \iint_{t \in [t_k, t_{k+1}]}
+      \rot_{WS} (\mathbf{a}_{m} - \mathbf{b}_{a} - \mathbf{n}_{a}) - \gravity
+      \enspace dt^{2} \\
+  % Velocity
+  \vel_{{WS}_{k+1}} &=
+    \vel_{{WS}_{k}}
+    + \int_{t \in [t_k, t_{k+1}]}
+      \rot_{WS} (\mathbf{a}_{m} - \mathbf{b}_{a} - \mathbf{n}_{a}) - \gravity
+      \enspace dt \\
+  % Orientation
+  \quat_{{WS}_{k+1}} &= \quat_{{WS}_{k}} \otimes
+    \int_{t \in [t_k, t_{k+1}]}
+      \dfrac{1}{2} \boldsymbol{\Omega}(\boldsymbol{\omega}_{m} - \mathbf{b}_{g} - \mathbf{n}_{g})
+      \enspace \quat_{S_{k}S_{t}} \enspace dt \\
+\end{align}
+$$
+<p>change reference frame from world frame to local sensor frame at time $k$</p>
+
+$$
+\begin{align}
+  % Position
+  \rot_{{S_{k}W}} \pos_{{WS}_{k+1}} &=
+    \rot_{{S_{k}W}} \left(
+      \pos_{{WS}_{k}}
+      + \vel_{{WS}_{k+1}} \Delta{t_{k,k+1}}
+      - \dfrac{1}{2} \gravity \Delta{t^{2}_{k,k+1}}
+    \right)
+    + \boldsymbol{\alpha}_{k,k+1} \\
+  % Velocity
+  \rot_{{S_{k}W}} \vel_{{WS}_{k+1}} &=
+    \rot_{{S_{k}W}} \left(
+      \vel_{{WS}_{k}}
+      - \dfrac{1}{2} \gravity \Delta{t_{k,k+1}}
+    \right)
+    + \boldsymbol{\beta}_{k,k+1} \\
+  % Orientation
+  \quat_{{S_{k}W}} \otimes \quat_{{WS}_{k+1}} &=
+    \boldsymbol{\gamma}_{k,k+1} \\
+\end{align}
+$$
+<p>where,</p>
+
+$$
+\begin{align}
+  % Position
+  \boldsymbol{\alpha}_{k,k+1} &=
+    \iint_{t \in [t_k, t_{k+1}]}
+      \rot_{{S_{k}S_{t}}} (\mathbf{a}_{m} - \mathbf{b}_{a} - \mathbf{n}_{a}) - \gravity
+      \enspace dt^{2} \\
+  % Orientation
+    \boldsymbol{\gamma}_{k,k+1} &= \int_{t \in [t_k, t_{k+1}]}
+      \dfrac{1}{2} \boldsymbol{\Omega}(\boldsymbol{\omega}_{m} - \mathbf{b}_{g} - \mathbf{n}_{g})
+      \enspace \quat_{S_{k}S_{t}} \enspace dt \\
+  % Velocity
+  \boldsymbol{\beta}_{k,k+1} &=
+    \int_{t \in [t_k, t_{k+1}]}
+      \rot_{{S_{k}S_{t}}} (\mathbf{a}_{m} - \mathbf{b}_{a} - \mathbf{n}_{a}) - \gravity
+      \enspace dt \\
+\end{align}
+$$
+<p>these are the terms that can be pre-integrated to reduce computational</p>
+<p>complexity. For discrete time implementation, different numerical integration</p>
+<p>methods such as Euler, midpoint and Ruge-Kutta integration can be used. Here,</p>
+<p>Euler integration is chosen. At the start, $\boldsymbol{\alpha}_{k,k}$,</p>
+<p>$\boldsymbol{\beta}_{k,k}$ is $\mathbf{0}$ and</p>
+<p>$\boldsymbol{\gamma}_{k,k}$ is identity quaternion.</p>
+
+$$
+\begin{align}
+  % Position
+  \hat{\boldsymbol{\alpha}}_{S_{k}S_{i + 1}} &=
+    \hat{\boldsymbol{\alpha}}_{S_{k}S_{i}}
+    + \hat{\boldsymbol{\beta}}_{S_{k}S_{i}} \delta t
+    + \dfrac{1}{2}
+      \rot(\hat{\boldsymbol{\gamma}}_{S_{k}S_{i}})
+      (\mathbf{a}_{m} - \mathbf{b}_{a}) \delta{t}^{2} \\
+  % Velocity
+  \hat{\boldsymbol{\beta}}_{S_{k}S_{i + 1}} &=
+    \hat{\boldsymbol{\beta}}_{S_{k}S_{i}}
+    + \rot(\hat{\boldsymbol{\gamma}}_{S_{k}S_{i}})
+      (\mathbf{a}_{m} - \mathbf{b}_{a}) \delta{t} \\
+  % Orientation
+    \hat{\boldsymbol{\gamma}}_{S_{k}S_{i+1}} &=
+      \hat{\boldsymbol{\gamma}}_{S_{k}S_{i}}
+      \otimes
+      \begin{bmatrix}
+        1 \\ 
+        \frac{1}{2} (\boldsymbol{\omega}_{m} - \mathbf{b}_{g}) \delta{t}
+      \end{bmatrix} \\
+\end{align}
+$$
+<p>The linearized dynamics of the error state for $\boldsymbol{\alpha}$,</p>
+<p>$\boldsymbol{\beta}$, $\boldsymbol{\gamma}$:</p>
+
+$$
+\begin{align}
+  % Position
+  \dot{\delta\boldsymbol{\alpha}} &= \delta\boldsymbol{\beta} \\
+  % Velocity
+  \dot{\delta\boldsymbol{\beta}}
+    &=
+    -\rot_{{S_{k}S_{t}}} \vee{\mathbf{a}_{m} - \mathbf{b}_{a}} \dtheta
+    -\rot_{{S_{k}S_{t}}} \delta{\mathbf{b}_{a}}
+    -\rot{{S_{k}S_{t}}} \mathbf{n}_{a} \\
+  % Orientation
+  \dot{\delta\boldsymbol{\theta}}
+    &=
+    -\vee{\boldsymbol{\omega}_{m} - \mathbf{b}_{g}} \dtheta
+    - \delta{\mathbf{b}_{g}}
+    - \mathbf{n}_{g} \\
+\end{align}
+$$
+$$
+\vec{x} = \begin{bmatrix}
+  \boldsymbol{\alpha} \\
+  \boldsymbol{\beta} \\
+  \boldsymbol{\gamma} \\
+  \mathbf{b}_{a} \\
+  \mathbf{b}_{g}
+\end{bmatrix}
+\enspace
+\delta{\vec{x}} = \begin{bmatrix}
+  \delta\boldsymbol{\alpha} \\
+  \delta\boldsymbol{\beta} \\
+  \delta\boldsymbol{\gamma} \\
+  \delta{\mathbf{b}_{a}} \\
+  \delta{\mathbf{b}_{g}}
+\end{bmatrix}
+\enspace
+\vec{u} = \begin{bmatrix}
+  \mathbf{a}_{m} \\
+  \boldsymbol{\omega}_{m}
+\end{bmatrix}
+\enspace
+\vec{\noise} = \begin{bmatrix}
+  \mathbf{n}_{a} \\
+  \mathbf{n}_{g} \\
+  \mathbf{b}_{a}Noise \\
+  \mathbf{b}_{g}Noise
+\end{bmatrix} \\
+$$
+$$
+\delta{\dot{\vec{x}}} &= \mat{F} \delta{\vec{x}} + \mat{G} \vec{n} \\
+\begin{bmatrix}
+  \dot{\delta\boldsymbol{\alpha}} \\
+  \dot{\delta\boldsymbol{\beta}} \\
+  \dot{\delta\boldsymbol{\theta}} \\
+  \delta{\dot{\mathbf{b}_{a}}} \\
+  \delta{\dot{\mathbf{b}_{g}}}
+\end{bmatrix}
+&=
+\begin{bmatrix}
+  % ROW 1
+  \mathbf{0}_{3}
+  & \eye_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3} \\
+  % ROW 2
+  \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & -\rot_{{S_{k}S_{t}}} \vee{\mathbf{a}_{m} - \mathbf{b}_{a}}
+  & -\rot_{{S_{k}S_{t}}}
+  & \mathbf{0}_{3} \\
+  % ROW 3
+  \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & -\vee{\boldsymbol{\omega}_{m} - \mathbf{b}_{g}}
+  & \mathbf{0}_{3}
+  & -\eye_{3} \\
+  % ROW 4
+  \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3} \\
+  % ROW 5
+  \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3}
+  & \mathbf{0}_{3} \\
+\end{bmatrix}
+\begin{bmatrix}
+  \delta\boldsymbol{\alpha} \\
+  \delta\boldsymbol{\beta} \\
+  \dtheta \\
+  \delta{\mathbf{b}_{a}} \\
+  \delta{\mathbf{b}_{g}}
+\end{bmatrix} \\
+&+
+\begin{bmatrix}
+  % ROW 1
+  \mathbf{0}_{3} & \mathbf{0}_{3} & \mathbf{0}_{3} & \mathbf{0}_{3} \\
+  % ROW 2
+  -\rot_{{S_{k}S_{t}}} & \mathbf{0}_{3} & \mathbf{0}_{3} & \mathbf{0}_{3} \\
+  % ROW 3
+  \mathbf{0}_{3} & -\eye_{3} & \mathbf{0}_{3} & \mathbf{0}_{3} \\
+  % ROW 4
+  \mathbf{0}_{3} & \mathbf{0}_{3} & \eye_{3} & \mathbf{0}_{3} \\
+  % ROW 5
+  \mathbf{0}_{3} & \mathbf{0}_{3} & \mathbf{0}_{3} & \eye_{3}
+\end{bmatrix}
+\begin{bmatrix}
+  \mathbf{n}_{a} \\
+  \mathbf{n}_{g} \\
+  \mathbf{b}_{a}Noise \\
+  \mathbf{b}_{g}Noise
+\end{bmatrix} \\
+$$
+$$
+\mat{P} &=
+  (\eye + \mat{F} \delta{t}) \mat{P} (\eye + \mat{F} \delta{t})^{{T}}
+  + (\mat{G} \delta{t}) \mat{Q} (\mat{G} \delta{t})^{{T}} \\
+\mat{J} &=
+  (\eye + \mat{F} \delta{t}) \mat{J}
+$$
+$$
+\boldsymbol{\alpha}_{k,k+1} &\approx
+  \underbrace{\hat{\boldsymbol{\alpha}}_{k,k+1}}_{\text{preintegrated}}
+  + \mat{J}^{\alpha}_{\mathbf{b}_{a}} \delta{\mathbf{b}_{a}}
+  + \mat{J}^{\alpha}_{\mathbf{b}_{g}} \delta{\mathbf{b}_{g}} \\
+\boldsymbol{\beta}_{k,k+1} &\approx
+  \underbrace{\hat{\boldsymbol{\beta}}_{k,k+1}}_{\text{preintegrated}}
+  + \mat{J}^{\beta}_{\mathbf{b}_{a}} \delta{\mathbf{b}_{a}}
+  + \mat{J}^{\beta}_{\mathbf{b}_{g}} \delta{\mathbf{b}_{g}} \\
+\boldsymbol{\gamma}_{k,k+1} &\approx
+  \underbrace{\hat{\boldsymbol{\gamma}}_{k,k+1}}_{\text{preintegrated}}
+  \otimes
+  \begin{bmatrix}
+    1 \\
+    \dfrac{1}{2} \mat{J}^{\gamma}_{\mathbf{b}_{g}} \delta{\mathbf{b}_{g}}
+  \end{bmatrix}
+$$
+<p>Residuals</p>
+
+$$
+\begin{bmatrix}
+  \vec{e}_{\delta\boldsymbol{\alpha}} \\
+  \vec{e}_{\delta\boldsymbol{\beta}} \\
+  \vec{e}_{\delta\boldsymbol{\gamma}} \\
+  \vec{e}_{\delta{\mathbf{b}_{a}}} \\
+  \vec{e}_{\delta{\mathbf{b}_{g}}}
+\end{bmatrix}
+=
+\underbrace{
+  \begin{bmatrix}
+  % Position
+      \rot_{{S_{k}W}} \left(
+        \pos_{{WS}_{k+1}}
+        - \pos_{{WS}_{k}}
+        - \vel_{{WS}_{k}} \Delta{t}
+        + \dfrac{1}{2} \gravity \Delta{t^{2}}
+      \right) \\
+  % Velocity
+      \rot_{{S_{k}W}} \left(
+        \vel_{{WS}_{k+1}}
+        - \vel_{{WS}_{k}}
+        + \gravity \Delta{t}
+      \right) \\
+  % Orientation
+  \quat^{-1}_{WS_{k}} \otimes \quat_{WS_{k+1}} \\
+  % Biases
+  \mathbf{b}_{a}_{k+1} - \mathbf{b}_{a}_{k} \\
+  \mathbf{b}_{g}_{k+1} - \mathbf{b}_{g}_{k}
+  \end{bmatrix}
+}_{\text{Measured}}
+-
+\underbrace{
+  \begin{bmatrix}
+  \hat{\boldsymbol{\alpha}}_{k,k+1} \\
+  \hat{\boldsymbol{\beta}}_{k,k+1} \\
+  \hat{\boldsymbol{\gamma}}_{k,k+1} \\
+  \mat{0} \\
+  \mat{0}
+  \end{bmatrix}
+}_{\text{Predicted}}
+$$
+<p>Jacobians</p>
+
+<p>Pose at $k$</p>
+
+$$
+\begin{align}
+  \dfrac{\vec{e}_{\delta\boldsymbol{\alpha}}}{{\partial{\pos_{WS_{k}}}}}
+    &= -\rot_{S_{k}W} \\
+  \dfrac{\vec{e}_{\delta\boldsymbol{\alpha}}}{{\partial{\dtheta_{k}}}}
+    &=
+    \vee{
+      \rot_{{S_{k}W}} \left(
+        \pos_{{WS}_{k+1}}
+        - \pos_{{WS}_{k}}
+        - \vel_{{WS}_{k+1}} \Delta{t}
+        + \dfrac{1}{2} \gravity \Delta{t^{2}}
+      \right)
+    } \\
+  \dfrac{\vec{e}_{\delta\boldsymbol{\gamma}}}{{\partial{\dtheta_{k}}}} &=\\
+  \dfrac{\vec{e}_{\delta\boldsymbol{\beta}}}{{\partial{\pos_{WS_{k}}}}}
+    &=
+    \vee{
+      \rot_{{S_{k}W}} \left(
+        \vel_{{WS}_{k+1}}
+        - \vel_{{WS}_{k}}
+        + \gravity \Delta{t}
+      \right)
+    } \\
+\end{align}
+$$
+<p>Speed and Biases at $k$</p>
+
+$$
+\begin{align}
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\alpha}}}}{{\partial{\vel_{WS_{k}}}}}
+    &= -\rot_{S_{k}W} \Delta{t} \\
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\alpha}}}}{{\partial{\mathbf{b}_{a}_{k}}}}
+    &= -\mat{J}^{\alpha}_{\delta{\mathbf{b}_{a}}} \\
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\alpha}}}}{{\partial{\mathbf{b}_{g}_{k}}}}
+    &= -\mat{J}^{\alpha}_{\delta{\mathbf{b}_{g}}}
+\end{align}
+$$
+$$
+\begin{align}
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\beta}}}}{{\partial{\vel_{WS_{k}}}}}
+    &= -\rot_{S_{k}W} \\
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\beta}}}}{{\partial{\mathbf{b}_{a}_{k}}}}
+    &= -\mat{J}^{\beta}_{\delta{\mathbf{b}_{a}}} \\
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\beta}}}}{{\partial{\mathbf{b}_{g}_{k}}}}
+    &= -\mat{J}^{\beta}_{\delta{\mathbf{b}_{g}}}
+\end{align}
+$$
+$$
+\begin{align}
+  \dfrac{\partial{\mathbf{e}_{\delta{\mathbf{b}_{a}}}}}{{\partial{\mathbf{b}_{a}_{k}}}}
+    &= -\eye_{3} \\
+  \dfrac{\partial{\mathbf{e}_{\delta{\mathbf{b}_{g}}}}}{{\partial{\mathbf{b}_{g}_{k}}}}
+    &= -\eye_{3}
+\end{align}
+$$
+<p>Pose at $k+1$</p>
+
+$$
+\begin{align}
+  \dfrac{\partial\vec{e}_{\delta\boldsymbol{\alpha}}}{{\partial{\pos_{WS_{k+1}}}}}
+    &= \rot_{S_{k}W} \\
+  \dfrac{\partial\vec{e}_{\delta\boldsymbol{\gamma}}}{{\partial{\quat_{WS_{k+1}}}}}
+    &= \\
+\end{align}
+$$
+<p>Speed and Biases at $k+1$</p>
+
+$$
+\begin{align}
+  \dfrac{\partial{\mathbf{e}_{\delta\boldsymbol{\beta}}}}{{\partial{\vel_{WS_{k+1}}}}}
+    &= \rot_{S_{k}W} \\
+  \dfrac{\partial{\mathbf{e}_{\delta{\mathbf{b}_{a}}}}}{{\partial{\mathbf{b}_{a}_{k+1}}}}
+    &= \eye_{3} \\
+  \dfrac{\partial{\mathbf{e}_{\delta{\mathbf{b}_{g}}}}}{{\partial{\mathbf{b}_{g}_{k+1}}}}
+    &= \eye_{3}
+\end{align}
+$$
+</div>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<h1>Condition Number</h1>
+
+<p>There are different condition numbers. In the following the condition number
+for the problem $\mat{A} \vec{x} = \vec{b}$ and matrix inversion are
+discussed. In general, the condition number, $\kappa(\cdot)$, for a
+matrix, $\mat{A}$, or computational task such as $\mat{A} \vec{x} =
+\vec{b}$ measures how sensitive the output is to perturbations in the input
+data and to round off errors. If the condition number is large, even a small
+error in $\vec{x}$ would cause a large error in $\vec{x}$. On the
+other hand, if the condition number is small then the error in $\vec{x}$
+will not be much bigger than the error in $\vec{b}$.</p>
+
+$$
+  \begin{align}
+    \kappa(\mat{A}) &\approx 1 \quad \text{well-Conditioned} \\
+    \kappa(\mat{A}) &> 1 \quad \text{ill-Conditioned}
+  \end{align}
+$$
+
+<p>The condition number is defined more precisely to be the maximum ratio of the
+relative error in $\vec{x}$ to the relative error in $\vec{b}$.</p>
+
+<p>Let $\vec{e}$ be the error in $\vec{b}$. Assuming that
+$\mat{A}$ is a nonsingular matrix, the error in the solution
+$\mat{A}^{-1} \vec{b}$ is $\mat{A}^{-1} \vec{e}$. The ratio of the
+relative error in the solution to the relative error in $\vec{b}$ is</p>
+
+$$
+   \dfrac{
+      \dfrac{\norm{\mat{A}^{-1} \vec{e}}}{\norm{\mat{A}^{-1} \vec{b}}}
+   }{
+      \dfrac{\norm{\vec{e}}}{\norm{\vec{b}}}
+   }
+$$
+
+<p>which can be rewritten as,</p>
+
+$$
+  \left(
+    \dfrac{\norm{\mat{A}^{-1} \vec{e}}}{\norm{\vec{e}}}
+  \right)
+  \cdot
+  \left(
+    \dfrac{\norm{\vec{b}}}{\norm{\mat{A}^{-1} \vec{b}}}
+  \right)
+$$
+
+<p>The maximum value (for nonzero $\vec{b}$ and $\vec{e}$) is then
+seen to be the product of the two operator norms as follows:</p>
+
+$$
+  \begin{align}
+    % -- LINE 1
+    &\max_{\vec{e}, \vec{b} \neq 0}
+    \left\{
+      \left(
+        \dfrac{\norm{\mat{A}^{-1} \vec{e}}}{\norm{\vec{e}}}
+        \cdot
+        \dfrac{\norm{\vec{b}}}{\norm{\mat{A}^{-1} \vec{b}}}
+      \right)
+    \right\} \\
+    % -- LINE 2
+    &= \max_{\vec{e}, \vec{b} \neq 0}
+    \left\{
+      \left(
+        \dfrac{\norm{\mat{A}^{-1} \vec{e}}}{\norm{\vec{e}}}
+      \right)
+    \right\}
+    \cdot
+    \max_{\vec{e}, \vec{b} \neq 0}
+    \left\{
+      \left(
+        \dfrac{\norm{\vec{b}}}{\norm{\mat{A}^{-1} \vec{b}}}
+      \right)
+    \right\} \\
+    % -- LINE 3
+    &= \max_{\vec{e}, \vec{b} \neq 0}
+    \left\{
+      \left(
+        \dfrac{\norm{\mat{A}^{-1} \vec{e}}}{\norm{\vec{e}}}
+      \right)
+    \right\}
+    \cdot
+    \max_{\vec{e}, \vec{b} \neq 0}
+    \left\{
+      \left(
+        \dfrac{\norm{\mat{A} \vec{x}}}{\norm{\vec{x}}}
+      \right)
+    \right\} \\
+    % -- LINE 4
+    &= \norm{\mat{A}^{-1}} \cdot \norm{\mat{A}}
+  \end{align}
+$$
+
+<p>The same definition is used for any matrix norm, i.e. one that satisfies</p>
+
+$$
+  \kappa(\mat{A}) = \norm{\mat{A}^{-1}} \cdot \norm{\mat{A}}
+    \geq \norm{\mat{A}^{-1} \cdot \mat{A}} = 1 .
+$$
+
+<p>When the condition number is exactly one (which can only happen if $\mat{A}$
+is a scalar multiple of a linear isometry), then a solution algorithm can find
+(in principle, meaning if the algorithm introduces no errors of its own) an
+approximation of the solution whose precision is no worse than that of the
+data.</p>
+
+<p>However, it does not mean that the algorithm will converge rapidly to this
+solution, just that it won't diverge arbitrarily because of inaccuracy on the
+source data (backward error), provided that the forward error introduced by the
+algorithm does not diverge as well because of accumulating intermediate
+rounding errors.</p>
+
+<p>The condition number may also be infinite, but this implies that the problem
+is ill-posed (does not possess a unique, well-defined solution for each choice
+of data -- that is, the matrix is not invertible), and no algorithm can be
+expected to reliably find a solution.</p>
+
+<p>The definition of the condition number depends on the choice of norm, as can
+be illustrated by two examples.</p>

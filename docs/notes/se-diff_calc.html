@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Differential Calculus</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "$", right: "$", display: false }
+        ],
+        macros: JSON.parse("{
+      \"mat\": \"\\mathbf{#1}\",
+      \"vec\": \"\\mathbf{#1}\",
+      \"rot\": \"\\mathbf{C}\",
+      \"eye\": \"\\mathbf{I}\",
+      \"det\": \"\\operatorname{det}\\left(#1\\right)\",
+      \"tr\": \"\\operatorname{tr}\\left(#1\\right)\",
+      \"rank\": \"\\operatorname{rank}\\left(#1\\right)\",
+      \"quat\": \"\\mathbf{q}\",
+      \"tf\": \"\\mathbf{T}\",
+      \"pos\": \"\\mathbf{r}\",
+      \"vel\": \"\\mathbf{v}\",
+      \"acc\": \"\\mathbf{a}\",
+      \"angvel\": \"\\mathbf{w}\",
+      \"frame\": \"\\mathcal{F}\",
+      \"pt\": \"\\mathbf{p}\",
+      \"vee\": \"{(#1)^\\times}\",
+      \"norm\": \"{\\left|\\left|#1\\right|\\right|}\",
+      \"covar\": \"{\\mathbf{\\Sigma}}\",
+      \"argmin\": \"\\mathop{\\operatorname{argmin}}\\limits\",
+      \"state\": \"\\mathbf{x}\",
+      \"E\": \"\\mathbb{E}\\left[#1\\right]\",
+      \"real\": \"\\mathbb{R}\",
+      \"gravity\": \"\\mathbf{g}\",
+      \"zeros\": \"\\mathbf{0}\",
+      \"dtheta\": \"\\delta\\boldsymbol{\\theta}\"
+}")
+      });
+    });
+  </script>
+  <style>
+    html { margin: 0px; padding: 0px; }
+    body {
+      display: block; width: 900px; margin: 0 auto; padding: 20px;
+      text-align: justify; font-family: Arial, Helvetica, sans-serif;
+    }
+    a { color: #007FFF; }
+    h1 { font-size: 2.0em; }
+    h2 { font-size: 1.4em; }
+    h3 { font-size: 1.2em; }
+    h4 { font-size: 1.1em; }
+    img { max-width: 600px; max-height: 600px; }
+    figure {
+      border: thin #c0c0c0 solid; display: flex; flex-flow: column;
+      padding: 5px; max-width: 600px; margin: 20px auto;
+    }
+    figcaption { background-color: #222; color: #fff; font: italic smaller sans-serif; padding: 3px; text-align: center; }
+    .eqn-num { display: none !important; }
+    .katex-display { margin-top: 30px; margin-bottom: 30px; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 3px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+<div id="content">
+<h1>Differential Calculus</h1>
+
+<p>Lie Group $\mathrm{SO}(3)$</p>
+
+<ul>
+<li>Not a vector space</li>
+<li>Has no addition operator</li>
+<li>Has no subtraction operator</li>
+
+</ul>
+
+<p>State estimation frameworks rely on small differences and gradients in order to</p>
+<p>correct the state estimate. Orientations unlike translation and velocity do not</p>
+<p>have an addition operator, as such it is more involving to update or find the</p>
+<p>gradients of orientations. Forunately, since orientations are a special</p>
+<p>orhogonal group $\mathrm{SO}(3)$ as well as a Lie group, an exponential map</p>
+<p>exists that relates to its Lie algebra allowing orientations to be perturbed</p>
+<p>and its gradients calculated.</p>
+
+<p>Elements in Lie algebra are abstract vectors and not suitable for actual</p>
+<p>computations. A basis $\mat{B} = [\vec{\boldsymbol{\varphi}}_{1} \enspace \vec{\boldsymbol{\varphi}}_{2} \enspace \vec{\boldsymbol{\varphi}}_{3}]$ can be used to extend the map to</p>
+<p>$\real^{3}$.</p>
+
+<p>The definition of an exponential map $exp : \real^{3} \mapsto \mathrm{SO}(3)$ of a coordinate tuple $\boldsymbol{\varphi} (\varphi_1, \varphi_2, \varphi_3) \in \real^{3}$ is defined by</p>
+
+$$
+\text{exp}(\boldsymbol{\varphi}) := Exp(
+  \vec{\boldsymbol{\varphi}}_{1}\varphi_{1},
+  \vec{\boldsymbol{\varphi}}_{2}\varphi_{2},
+  \vec{\boldsymbol{\varphi}}_{3}\varphi_{3}
+)
+$$
+$$
+Exp((t + s) \vec{\boldsymbol{\varphi}}) =
+  Exp(t\vec{\boldsymbol{\varphi}}) \circ Exp(s\vec{\boldsymbol{\varphi}})
+\qquad
+\forall t, s \in \real, \forall \vec{\boldsymbol{\varphi}} \in
+$$
+$$
+\boxplus :& \mathrm{SO}(3) \times \real^{3} \rightarrow \mathrm{SO}(3), \\
+  &\Phi, \boldsymbol{\varphi}
+    \mapsto \text{exp}(\boldsymbol{\varphi}) \circ \Phi, \\
+\boxminus :& \mathrm{SO}(3) \times \mathrm{SO}(3) \rightarrow \real^{3}, \\
+  &\Phi_1, \Phi_2 \mapsto \text{log}(\Phi_1 \circ \Phi_{2}^{-1})
+$$
+<p>Similar to regular addition and subtraction, both operators have the following</p>
+<p>identities,</p>
+
+$$
+\Phi \boxplus \vec{0} &= \Phi \\
+(\Phi \boxplus \boldsymbol{\varphi}) \boxminus \Phi &= \boldsymbol{\varphi} \\
+\Phi_1 \boxplus (\Phi_2 \boxminus \Phi_1) &= \Phi_2
+$$
+<h2>Special Orthogonal Group $\mathrm{SO}(3)$</h2>
+
+<p>Special Orthogonal Group $\mathrm{SO}(3)$ describes the group of 3D rotation</p>
+<p>matrices and it is formally defined as $\mathrm{SO}(3) \dot{=} \{ \rot \in \real^{3 \times 3} : \rot^{{T}} \rot = \eye, \det{\rot} = 1 \}$ .  The</p>
+<p>group operation is the usual matrix multiplication, and the inverse is the</p>
+<p>matrix transpose. The group $\mathrm{SO}(3)$ also forms a smooth manifold. The</p>
+<p>tangent space to the manifold (at the identity) is denoted $\mathfrak{so}(3)$,</p>
+<p>which is also called the <em>Lie algebra</em> and coincides with the space of `3</p>
+<p>\times 3` skew symmetric matrices.</p>
+
+$$
+\angvel \in \real^{3},
+\enspace
+\vee{\angvel} = \begin{bmatrix}
+  0 & -\omega_{3} & \omega_{2} \\
+  \omega_{3} & 0 & -\omega_{1} \\
+  -\omega_{2} & \omega_{1} & 0
+\end{bmatrix}
+$$
+$$
+\text{Exp}: \real^{3} \rightarrow \mathrm{SO}(3) ;
+\enspace
+\boldsymbol{\phi} \rightarrow \text{exp}(\vee{\boldsymbol{\phi}}) \\
+\text{Log}: \mathrm{SO}(3) \rightarrow \real^{3} ;
+\enspace
+\rot \rightarrow \vee{\text{log}(\rot)}
+$$
+<h3>Exponential Map</h3>
+
+<p>The <em>exponential map</em> (at the identity) $exp: \mathfrak{so}(3) \rightarrow \mathrm{SO}(3)$ associates an element of the Lie Algebra to a rotation:</p>
+
+$$
+\text{exp}(\vee{\boldsymbol{\phi}}) =
+  \eye
+  + \dfrac{\sin(|| \boldsymbol{\phi} ||)}
+          {|| \boldsymbol{\phi} ||}
+      \vee{\boldsymbol{\phi}}
+  + \dfrac{1 - \cos(|| \boldsymbol{\phi} ||)}
+          {|| \boldsymbol{\phi} ||^{2}}
+      \vee{\boldsymbol{\phi}}^{2}
+$$
+<h3>Logarithmic Map</h3>
+
+<p>The <em>logarithmic map</em> (at the identity) associates rotation matrix</p>
+<p>$\rot \in \mathrm{SO}(3)$ to a skew symmetric matrix:</p>
+
+$$
+\log(\rot) = \dfrac{\psi \cdot (\rot - \rot^{{T}})}{2 \sin(\psi)},
+\enspace
+\psi = \cos^{-1} \left( \dfrac{\tr{\rot) - 1}}{2} \right)
+$$
+<h3>Properties</h3>
+
+$$
+\begin{align}
+  \rot \text{Exp}(\boldsymbol{\phi}) \rot^{{T}}
+  &= \text{Exp}(\rot \vee{\boldsymbol{\phi}} \rot^{{T}}) \\
+  &= \text{Exp}(\rot \boldsymbol{\phi}) \\
+  &= \text{Exp}(\boldsymbol{\phi}) \rot \\
+  &= \rot^{{T}} \text{Exp}(\boldsymbol{\phi}) \rot
+\end{align}
+$$
+$$
+\text{Exp}(\boldsymbol{\phi} + \delta\boldsymbol{\phi}) \approx
+  \text{Exp}(\boldsymbol{\phi})
+  \text{Exp}(\mathbf{J}_{r}(\boldsymbol{\phi}) \delta\boldsymbol{\phi})
+$$
+$$
+\text{Log}(
+  \text{Exp}(\boldsymbol{\phi})
+  \text{Exp}(\delta\boldsymbol{\phi})
+)
+\approx
+\boldsymbol{\phi} + \mathbf{J}_{r}^{-1}(\boldsymbol{\phi})
+  \delta\boldsymbol{\phi}
+$$
+$$
+\mathbf{J}_{r}(\boldsymbol{\phi}) =
+  \eye
+  - \dfrac{1 - \cos(||\boldsymbol{\phi}||)}{||\boldsymbol{\phi}||^{2}}
+  + \dfrac{||\boldsymbol{\phi} - \sin(||\boldsymbol{\phi}||)}
+    {||\boldsymbol{\phi^{3}}||}
+  (\vee{\boldsymbol{\phi}})^{2}
+$$
+$$
+\mathbf{J}_{r}^{-1}(\boldsymbol{\phi}) =
+  \eye
+  - \dfrac{1}{2} \vee{\boldsymbol{\phi}}
+  + \left(
+    \dfrac{1}{||\boldsymbol{\phi}||^{2}}
+    + \dfrac{1 + \cos(||\boldsymbol{\phi}||}
+      {2 ||\boldsymbol{\phi}||^{2} \sin(||\boldsymbol{\phi}||)}
+  \right)
+  \vee{\boldsymbol{\phi}}^{2}
+$$
+</div>
+</body>
+</html>

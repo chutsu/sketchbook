@@ -1,0 +1,243 @@
+<h1>Marginalization</h1>
+
+<p>As a reminder, marginalization is about having a joint density $p(x, y)$
+over two variables $x$ and $y$, and we would like to marginalize out or
+"eliminate a variable", lets say $y$ in this case:</p>
+
+$$
+  p(x) = \int_{y} p(x, y)
+$$
+
+<p>resulting in a density $p(x)$ over the remaining variable $x$.</p>
+
+<p>Now, if the density was in covariance form with mean $\boldsymbol{\mu}$
+and covariance $\mathbf{\Sigma}$, partitioned as follows:</p>
+
+$$
+  \begin{align}
+    p(x, y) = \mathcal{N}(
+      % Mean
+      \begin{bmatrix}
+        \boldsymbol\mu_{x} \\
+        \boldsymbol\mu_{y}
+      \end{bmatrix},
+      % Covariance
+      \begin{bmatrix}
+        \mathbf\Sigma_{xx}, \mathbf\Sigma_{xy} \\
+        \mathbf\Sigma_{yx}, \mathbf\Sigma_{yy}
+      \end{bmatrix}
+    )
+  \end{align}
+$$
+
+<p>marginalization is simple, as the corresponding sub-block
+$\mathbf{\Sigma}_{xx}$ already contains the covariance on $x$ i.e.,</p>
+
+$$
+  p(x) = \mathcal{N}(
+    % Mean
+    \boldsymbol\mu_{x},
+    % Covariance
+      \mathbf\Sigma_{xx}
+  ).
+$$
+
+<p>In the nonlinear-least squares formulation, however, we can only obtain the
+covariance $\mathbf{\Sigma}$ with the following property,</p>
+
+$$
+  \mathbf{\Sigma} = \mat{H}^{-1}
+$$
+
+<p>where $\mat{H}$ is the Hessian matrix in a Gauss-Newton system
+($\mat{H}\delta\vec{x} = \vec{b}$).</p>
+
+
+<h2>Using Shur's Complement for marginalization</h2>
+
+<p>First let $\state_1$ be the states to be marginalized out, $\state_{2}$ be the
+set of states related to those by error terms, and $\state_{\rho}$ be the set
+of remaining states. Partitioning the Hessian, error state and R.H.S of the
+Gauss-Newton system gives:</p>
+
+$$
+  \begin{align}
+    \begin{bmatrix}
+      \mat{H}_{11} & \mat{H}_{12} \\
+      \mat{H}_{21} & \mat{H}_{22}
+    \end{bmatrix}
+    \begin{bmatrix}
+      \delta\state_{1} \\
+      \delta\state_{2}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+      \vec{b}_{1} \\
+      \vec{b}_{2}
+    \end{bmatrix}
+  \end{align}
+$$
+
+<p>and applying the Shur complement operation yields:</p>
+
+$$
+  \begin{align}
+    \mat{H}^{\ast}_{22}
+    &=
+    \mat{H}_{22} -
+    \mat{H}_{21}
+    \mat{H}_{11}^{-1}
+    \mat{H}_{12}
+    \\
+    \vec{b}^{\ast}_{2}
+    &=
+    \vec{b}_{2} -
+    \mat{H}_{21}
+    \mat{H}_{11}^{-1}
+    \vec{b}_{1}
+  \end{align}
+$$
+
+<p>where $\vec{b}^{\ast}_{2}$ and
+$\mat{H}^{\ast}_{22}$ are non-linear functions of
+$\state_2$ and $\state_1$.</p>
+
+
+<h2>Derivation of Schur's Complement for Marginalization</h2>
+
+<p>From the Gauss-Newton system, $\mat{H} \delta\vec{x} = \vec{b}$, we can
+derive the marginalization of the old states in $\delta\vec{x}$ algebraically.
+Let us decompose the system as:</p>
+
+$$
+  \begin{align}
+    % H
+    \begin{bmatrix}
+    \mat{H}_{11} & \mat{H}_{12} \\
+    \mat{H}_{21} & \mat{H}_{22}
+    \end{bmatrix}
+    % x
+    \begin{bmatrix}
+    \delta\vec{x}_{1} \\
+    \delta\vec{x}_{2}
+    \end{bmatrix}
+    =
+    % b
+    \begin{bmatrix}
+    \vec{b}_{1} \\
+    \vec{b}_{2}
+    \end{bmatrix}
+  \end{align}
+$$
+
+<p>If we multiply out the block matrices and vectors out we get:</p>
+
+$$
+  \begin{align}
+    % Line 1
+    \mat{H}_{11} \delta\vec{x}_{1} + \mat{H}_{12} \delta\vec{x}_{2}
+    = \vec{b}_{1} \\
+    % Line 2
+    \mat{H}_{21} \delta\vec{x}_{1} + \mat{H}_{22} \delta\vec{x}_{2}
+    = \vec{b}_{2}
+  \end{align}
+$$
+
+<p>Suppose we want to marginalize out the $\delta\vec{x}_{2}$, the second
+equation above can be rearranged w.r.t. $\delta\vec{x}_{2}$ like so:</p>
+
+$$
+  \begin{align}
+    % Line 1
+    \mat{H}_{21} \delta\vec{x}_{1} + \mat{H}_{22} \delta\vec{x}_{2}
+    &= \vec{b}_{2} \\
+    % Line 2
+    \mat{H}_{22} \delta\vec{x}_{2}
+    &= \vec{b}_{2} - \mat{H}_{21} \delta\vec{x}_{1} \\
+    % Line 3
+    \delta\vec{x}_{2}
+    &= \mat{H}_{22}^{-1} \vec{b}_{2}
+    - \mat{H}_{22}^{-1} \mat{H}_{21} \delta\vec{x}_{1} \\
+  \end{align}
+$$
+
+<p>substituting $\delta\vec{x}_{2}$ back into $\mat{H}_{11} \delta\vec{x}_{1} +
+\mat{H}_{12} \delta\vec{x}_{2} = \vec{b}_{1}$, and rearranging the terms so it
+is w.r.t $\delta\vec{x}_{1}$ to get:</p>
+
+$$
+  \begin{align}
+    % Line 1
+    \mat{H}_{11} \delta\vec{x}_{1} + \mat{H}_{12}
+    (\mat{H}_{22}^{-1} \vec{b}_{2}
+    - \mat{H}_{22}^{-1} \mat{H}_{21} \delta\vec{x}_{1})
+    &= \vec{b}_{1} \\
+    % Line 2
+    \mat{H}_{11} \delta\vec{x}_{1}
+    + \mat{H}_{12} \mat{H}_{22}^{-1} \vec{b}_{2}
+    - \mat{H}_{12} \mat{H}_{22}^{-1} \mat{H}_{21} \delta\vec{x}_{1}
+    &= \vec{b}_{1} \\
+    % Line 3
+    (\mat{H}_{11}
+    - \mat{H}_{12}\mat{H}_{22}^{-1}\mat{H}_{21}) \delta\vec{x}_{1}
+    &= \vec{b}_{1} - \mat{H}_{12} \mat{H}_{22}^{-1} \vec{b}_{2}
+  \end{align}
+$$
+
+<p>thus the Schur Complement of $\mat{H}_{22}$ in $\mat{H}$ is:</p>
+
+$$
+  \begin{align}
+    \mat{H} / \mat{H}_{22} &=
+      \mat{H}_{11}
+      - \mat{H}_{12} \mat{H}_{22}^{-1} \mat{H}_{21} \\
+      \vec{b} / \vec{b}_{2} &=
+        \vec{b}_{1} - \mat{H}_{12} \mat{H}_{22}^{-1} \vec{b}_{2}
+  \end{align}
+$$
+
+<p>If you want to marginalize out $\delta\vec{x}_{1}$ you can follow the same
+process above but w.r.t $\vec{x}_{1}$.</p>
+
+
+
+<h2>First Estimate Jacobians (FEJ)</h2>
+
+<p>In the context of real time state-estimation, a fixed-lag smoother provides a
+way to bound the optimization problem in order to operate in real time. The
+method to remove old states in the state vector is called *marginalization*. To
+perform marginalization the Schur's complement is used to marginalize out old
+states.</p>
+
+<p>Simply performing marginalization, however, introduces estimator
+inconsistencies.</p>
+
+<p>Let us consider the following scenario. A state vector, $\state$, during the
+time interval $[0, \, k]$ will contain $m$ old states to be marginalized
+out and $r$ remain states which we wish to keep. i.e. $\state = [\state_{m}^{T}
+\quad \state_{r}^{T}]^{T}$. Then the cost function, $c(\cdot)$, can be written
+as a function of $\state$ at time $k$ as,</p>
+
+$$
+  \begin{align}
+    c(\state_{k}) &= c(\state_{m}, \state_{r}) \\
+                  &= c(\state_{m}) + c(\state_{r}).
+  \end{align}
+$$
+
+<p>The intuition behind the above is since the state at time $k$ can be
+partitioned into $m$ and $r$, the cost can also be decomposed. Utilizing this
+property, the multivariate optimization can also be decomposed as follows,</p>
+
+$$
+  \begin{align}
+    \min_{\state_{m}, \state_{r}} c(\state_{m}, \state_{r})
+      &= \min_{\state_{r}} (\min_{\state_{m}} c(\state_{m}, \state_{r})) \\
+      &= \min_{\state_{r}} (c(\state_{r}) + \min_{\state_{m}} c(\state_{m})).
+  \end{align}
+$$
+
+<p>The equation above shows the minimization problem can be solved by first
+optimizing for the states $\state_{m}$, and then forming a prior towards
+the problem of solving for $\state_{r}$. The reformulation of the
+minimization problem entails no approximation.</p>
