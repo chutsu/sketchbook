@@ -1,0 +1,114 @@
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: block;
+  width: 1270px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  text-align: justify;
+  font-size: 1.2em;
+  font-family: "Fira Sans", sans-serif;
+}
+
+a {
+  color: #007fff;
+}
+
+h1 {
+  font-size: 2em;
+  text-align: left;
+}
+
+h2 {
+  font-size: 1.4em;
+  text-align: left;
+}
+
+h3 {
+  font-size: 1.2em;
+  text-align: left;
+}
+
+h4 {
+  font-size: 1.1em;
+  text-align: left;
+}
+
+img {
+  max-width: 600px;
+  max-height: 600px;
+}
+
+figure {
+  border: thin #c0c0c0 solid;
+  display: flex;
+  flex-flow: column;
+  padding: 5px;
+  max-width: 600px;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+figcaption {
+  background-color: #222;
+  color: #fff;
+  font: italic smaller sans-serif;
+  padding: 3px;
+  text-align: center;
+}
+
+article {
+  display: block;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+#sidebar-container {
+  display: block;
+  width: 250px;
+  position: fixed;
+}
+
+#sidebar-container a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+#sidebar-container ul {
+  margin-left: 10px;
+  margin-top: 10px;
+  padding-left: 10px;
+}
+
+#sidebar-container li {
+  margin-top: 5px;
+  text-align: left;
+}
+
+#content {
+  display: block;
+  width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 20px;
+}
+
+.katex {
+  font-size: 1.2em;
+}
+
+.katex-display {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.eqn-num {
+  display: none !important;
+}
