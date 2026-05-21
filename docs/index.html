@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Notes</title>
+  <title>Sketchbook — Robotics &amp; ML Notes</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,44 @@
 
 <!-- sidebar and content -->
 <div id="sidebar-container"></div>
-<div id="content"> <p>Select a topic from the sidebar.</p> </div>
+<div id="content">
+  <article>
+    <h1>Sketchbook</h1>
+    <p>Personal reference notes on robotics, computer vision, state estimation, linear algebra, and machine learning.</p>
+    <hr>
+    <h2>Topics</h2>
+    <div class="topic-grid">
+      <div class="topic-card">
+        <h3><a href="notes/geom-notations.html" data-note>3D Geometry</a></h3>
+        <p>Rotations, quaternions, and spatial transformations.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/linalg-lu.html" data-note>Linear Algebra</a></h3>
+        <p>Decompositions, least squares, and matrix analysis.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/cv-camera_model.html" data-note>Computer Vision</a></h3>
+        <p>Camera models, epipolar geometry, optical flow, and feature tracking.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/se-ba.html" data-note>State Estimation</a></h3>
+        <p>Bundle adjustment, Kalman filtering, IMU, and marginalization.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/ml-attention.html" data-note>Machine Learning</a></h3>
+        <p>Attention, Bayes classifiers, and regression models.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/mav-mpc.html" data-note>Micro Aerial Vehicles</a></h3>
+        <p>Model predictive control for MAVs.</p>
+      </div>
+      <div class="topic-card">
+        <h3><a href="notes/stats-stats.html" data-note>Statistics</a></h3>
+        <p>Probability and statistics reference.</p>
+      </div>
+    </div>
+  </article>
+</div>
 
 <!-- App script -->
 <script defer src="static/app.js"></script>
