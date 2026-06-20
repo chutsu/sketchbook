@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import unittest
-
 import numpy as np
 from numpy import eye
 from numpy import tan
@@ -472,99 +470,44 @@ class Octree:
         self.get_points_and_bboxes(child, points_list, bboxes_list)
 
 
-class TestPlane(unittest.TestCase):
-  """Test Plane"""
-  def test_plane(self):
-    # Define the coefficients of the plane
-    # ax + by + cz = d
+def test_plane():
     d = 1.0
-    normal = np.array([0, 0, 1])  # Example normal vector (a, b, c)
+    normal = np.array([0, 0, 1])
     a, b, c = normal
 
-    # Create a grid of x, y values
     x = np.linspace(-10, 10, 10)
     y = np.linspace(-10, 10, 10)
     x, y = np.meshgrid(x, y)
 
-    # Calculate corresponding z values
     z = (d - a * x - b * y) / c
-
-    debug = False
-    if debug:
-      fig = plt.figure()
-      ax = fig.add_subplot(111, projection="3d")
-
-      # Plot the surface
-      ax.plot_surface(x, y, z, alpha=0.5, rstride=100, cstride=100)
-
-      # Set labels
-      ax.set_xlabel("X axis")
-      ax.set_ylabel("Y axis")
-      ax.set_zlabel("Z axis")
-
-      # Show the plot
-      plt.show()
+    assert z is not None
 
 
-class TestFrustum(unittest.TestCase):
-  """Test Frustum"""
-  def test_frustum(self):
-    # C_WC = euler321(-pi / 2.0, 0.0, -pi / 2.0)
+def test_frustum():
     C_WC = euler321(0.0, 0.0, 0.0)
     r_WC = np.array([0.0, 0.0, 0.0])
     T_WC = tf(C_WC, r_WC)
 
-    hfov = 60.0
-    aspect = 1.0
     frustum = Frustum(
-      hfov=hfov,
-      aspect=aspect,
-      znear=0.1,
-      zfar=5.0,
-      frustum_pose=T_WC,
+        hfov=60.0,
+        aspect=1.0,
+        znear=0.1,
+        zfar=5.0,
+        frustum_pose=T_WC,
     )
     points = np.random.uniform(-6.0, 6.0, (500, 3))
-
-    # Visualize
-    debug = False
-    if debug:
-      figsize = (10, 10)
-      fig = plt.figure(figsize=figsize)
-      ax = fig.add_subplot(111, projection="3d")
-      plot_tf(ax, T_WC, size=1.0)
-      frustum.plot(ax, points=points)
-
-      plot_set_axes_equal(ax)
-      ax.set_xlabel("X axis")
-      ax.set_ylabel("Y axis")
-      ax.set_zlabel("Z axis")
-      plt.show()
+    assert frustum is not None
+    assert points.shape == (500, 3)
 
 
-class TestOctree(unittest.TestCase):
-  """Test Octree"""
-  def test_octree(self):
+def test_octree():
     points = [np.random.rand(3) for _ in range(100)]
-    center = [0.0, 0.0, 0.0]
-    size = 100.0
     octree = Octree(points)
 
     octree_points = []
     octree_bboxes = []
     octree.get_points_and_bboxes(octree.root, octree_points, octree_bboxes)
 
-    # Visualize
-    debug = False
-    if debug:
-      fig = plt.figure()
-      ax = fig.add_subplot(111, projection="3d")
+    assert len(octree_points) == 100
+    assert len(octree_bboxes) > 0
 
-      # -- Plot bounding boxes
-      for center, size in octree_bboxes:
-        plot_bbox(ax, center, [size, size, size])
-
-      # -- Plot points
-      for p in octree_points:
-        ax.plot(p[0], p[1], p[2], "r.")
-
-      plt.show()

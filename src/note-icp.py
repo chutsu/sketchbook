@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 from pathlib import Path
-from typing import TypeVar
-from typing import Annotated
-from typing import Literal
 
 from math import cos
 from math import sin
@@ -11,37 +8,8 @@ import rerun as rr
 import numpy as np
 import open3d as o3d
 
-from numpy.typing import NDArray
 
-DType = TypeVar("DType", bound=np.generic)
-Vec2 = Annotated[NDArray[DType], Literal[2]]
-Vec3 = Annotated[NDArray[DType], Literal[3]]
-Vec4 = Annotated[NDArray[DType], Literal[4]]
-Vec5 = Annotated[NDArray[DType], Literal[5]]
-Vec6 = Annotated[NDArray[DType], Literal[6]]
-Vec7 = Annotated[NDArray[DType], Literal[7]]
-VecN = Annotated[NDArray[DType], Literal["N"]]
-Mat2 = Annotated[NDArray[DType], Literal[2, 2]]
-Mat3 = Annotated[NDArray[DType], Literal[3, 3]]
-Mat34 = Annotated[NDArray[DType], Literal[3, 4]]
-Mat4 = Annotated[NDArray[DType], Literal[4, 4]]
-MatN = Annotated[NDArray[DType], Literal["N", "N"]]
-MatNx2 = Annotated[NDArray[DType], Literal["N", "2"]]
-MatNx3 = Annotated[NDArray[DType], Literal["N", "3"]]
-MatNx4 = Annotated[NDArray[DType], Literal["N", "4"]]
-Mat2xN = Annotated[NDArray[DType], Literal["2", "N"]]
-Mat2x3 = Annotated[NDArray[DType], Literal["2", "3"]]
-Mat3x4 = Annotated[NDArray[DType], Literal["3", "4"]]
-Mat3xN = Annotated[NDArray[DType], Literal["3", "N"]]
-Mat4xN = Annotated[NDArray[DType], Literal["4", "N"]]
-Image = Annotated[NDArray[DType], Literal["N", "N"]]
-
-
-def euler321(
-    yaw: float | np.float32 | np.float64,
-    pitch: float | np.float32 | np.float64,
-    roll: float | np.float32 | np.float64,
-) -> Mat3:
+def euler321(yaw, pitch, roll):
   """
   Convert yaw, pitch, roll in radians to a 3x3 rotation matrix.
 
@@ -77,7 +45,7 @@ def euler321(
   return np.array([[C11, C12, C13], [C21, C22, C23], [C31, C32, C33]])
 
 
-def hat(vec: Vec3) -> Mat3:
+def hat(vec):
   """Form skew-symmetric matrix from vector `vec`"""
   assert vec.shape == (3,) or vec.shape == (3, 1)
 
@@ -93,7 +61,7 @@ def hat(vec: Vec3) -> Mat3:
   return np.array([[0.0, -z, y], [z, 0.0, -x], [-y, x, 0.0]])
 
 
-def Exp(phi: Vec3) -> Mat3:
+def Exp(phi):
   """Exponential Map"""
   assert phi.shape == (3,) or phi.shape == (3, 1)
   if np.linalg.norm(phi) < 1e-3:
@@ -110,20 +78,20 @@ def Exp(phi: Vec3) -> Mat3:
   return C
 
 
-def quat_norm(q: Vec4) -> float:
+def quat_norm(q):
   """Returns norm of a quaternion"""
   qw, qx, qy, qz = q
   return np.sqrt(qw**2 + qx**2 + qy**2 + qz**2)
 
 
-def quat_normalize(q: Vec4) -> Vec4:
+def quat_normalize(q):
   """Normalize quaternion"""
   n = quat_norm(q)
   qw, qx, qy, qz = q
   return np.array([qw / n, qx / n, qy / n, qz / n])
 
 
-def quat_left(q: Vec4) -> Mat4:
+def quat_left(q):
   """Quaternion left product matrix"""
   qw, qx, qy, qz = q
   row0 = [qw, -qx, -qy, -qz]
@@ -133,7 +101,7 @@ def quat_left(q: Vec4) -> Mat4:
   return np.array([row0, row1, row2, row3])
 
 
-def quat_right(q: Vec4) -> Mat4:
+def quat_right(q):
   """Quaternion right product matrix"""
   qw, qx, qy, qz = q
   row0 = [qw, -qx, -qy, -qz]
@@ -143,7 +111,7 @@ def quat_right(q: Vec4) -> Mat4:
   return np.array([row0, row1, row2, row3])
 
 
-def quat_lmul(p: Vec4, q: Vec4) -> Vec4:
+def quat_lmul(p, q):
   """Quaternion left multiply"""
   assert len(p) == 4
   assert len(q) == 4
@@ -151,7 +119,7 @@ def quat_lmul(p: Vec4, q: Vec4) -> Vec4:
   return lprod @ q
 
 
-def quat_rmul(p: Vec4, q: Vec4) -> Vec4:
+def quat_rmul(p, q):
   """Quaternion right multiply"""
   assert len(p) == 4
   assert len(q) == 4
@@ -159,7 +127,7 @@ def quat_rmul(p: Vec4, q: Vec4) -> Vec4:
   return rprod @ p
 
 
-def quat_delta(dalpha: Vec3) -> Vec4:
+def quat_delta(dalpha):
   """Form quaternion from small angle rotation vector dalpha"""
   half_norm = 0.5 * np.linalg.norm(dalpha)
   scalar = np.cos(half_norm)
@@ -172,7 +140,7 @@ def quat_delta(dalpha: Vec3) -> Vec4:
   return dq
 
 
-def rot2quat(C: Mat3) -> Vec4:
+def rot2quat(C):
   """
     Convert 3x3 rotation matrix to quaternion.
     """
@@ -224,12 +192,12 @@ def rot2quat(C: Mat3) -> Vec4:
   return quat_normalize(np.array([qw, qx, qy, qz]))
 
 
-def quat_mul(p: Vec4, q: Vec4) -> Vec4:
+def quat_mul(p, q):
   """Quaternion multiply p * q"""
   return quat_lmul(p, q)
 
 
-def quat2rot(q: Vec4) -> Mat3:
+def quat2rot(q):
   """
     Convert quaternion to 3x3 rotation matrix.
 
@@ -263,7 +231,7 @@ def quat2rot(q: Vec4) -> Mat3:
 
 
 class BunnyData:
-  def __init__(self, data_dir: Path):
+  def __init__(self, data_dir):
     self.data_dir = data_dir
     self.pcd_files = sorted([x for x in Path("data/bunny").glob("*.xyz")])
     self.pose_files = sorted([x for x in Path("data/bunny").glob("*.txt")])
@@ -353,19 +321,11 @@ def icp_open3d(src_points, dst_points):
 
   R_est = result.transformation[0:3, 0:3]
   t_est = result.transformation[0:3, 3]
-  # dst_points_est = (R_est @ src_points.T).T + t_est
-
-  # rr.log("src-points", rr.Points3D(src_points, colors=[1.0, 0.0, 0.0], radii=0.0001))
-  # rr.log("dst-points", rr.Points3D(dst_points, colors=[0.0, 1.0, 0.0], radii=0.0001))
-  # rr.log(
-  #     "dst_est-points",
-  #     rr.Points3D(dst_points_est, colors=[0.0, 0.0, 1.0], radii=0.0001),
-  # )
 
   return R_est, t_est
 
 
-def umeyama(X: MatNx3, Y: MatNx3) -> tuple[float, Mat3, Vec3]:
+def umeyama(X, Y):
   """
     Estimates scale `c`, rotation matrix `R` and translation vector `t` between
     two sets of points `X` and `Y` such that:
@@ -408,119 +368,31 @@ def umeyama(X: MatNx3, Y: MatNx3) -> tuple[float, Mat3, Vec3]:
 
 if __name__ == "__main__":
   rr.init("icp", spawn=True)
-
   data = BunnyData(Path("data/bunny"))
 
-  frames = []
-  radii = 0.0001
-  red = [1.0, 0.0, 0.0]
-  green = [0.0, 1.0, 0.0]
-  blue = [0.0, 0.0, 1.0]
-  for i in range(20):
-    if i == 0:
-      scan = data.load_scan(i)
-      frames.append(Frame(scan))
-    else:
-      prev_frame = frames[i - 1]
-      scan = data.load_scan(i)
-      frames.append(Frame(scan, prev_frame))
-
-    if i >= 1:
-      frame_km1 = frames[i - 1]
-      frame_k = frames[i]
-      frame_km1.estimate(frame_k)
-
-      points_km1 = frame_km1.points()
-      points_k = frame_k.points()
-
-      rr.set_time("iteration", sequence=i)
-      rr.log("src-points", rr.Points3D(points_km1, colors=blue, radii=radii))
-      rr.log("dst-points", rr.Points3D(points_k, colors=green, radii=radii))
-      rr.log("points", rr.Points3D(points_k, colors=red, radii=radii))
-
-  # frame0 = Frame(data.load_scan(0))
-  # frame1 = Frame(data.load_scan(1))
-  # frame2 = Frame(data.load_scan(2))
-  # frame3 = Frame(data.load_scan(3))
-
-  # frame0.estimate(frame1)
-  # frame1.estimate(frame2)
-  # frame2.estimate(frame3)
-  #
+  # frames = []
   # radii = 0.0001
   # red = [1.0, 0.0, 0.0]
   # green = [0.0, 1.0, 0.0]
   # blue = [0.0, 0.0, 1.0]
-  # rr.set_time("iteration", sequence=0)
-  # rr.log("points", rr.Points3D(frame0.points(), colors=red, radii=radii))
-  # rr.set_time("iteration", sequence=1)
-  # rr.log("points", rr.Points3D(frame1.points(), colors=green, radii=radii))
-  # rr.set_time("iteration", sequence=2)
-  # rr.log("points", rr.Points3D(frame2.points(), colors=blue, radii=radii))
-  # rr.set_time("iteration", sequence=3)
-  # rr.log("points", rr.Points3D(frame3.points(), colors=blue, radii=radii))
-
-  # src_points = frame0.points()
-  # dst_points = frame1.points()
-  # icp_open3d(src_points, dst_points)
-
-  # max_iter = 50
-  # tree = scipy.spatial.KDTree(src_points)
-  # R_est = np.eye(3)
-  # # R_est = euler321(0.1, 0.2, 0.0)
-  # t_est = np.array([0.0, 0.0, 1.0])
+  # for i in range(20):
+  #   if i == 0:
+  #     scan = data.load_scan(i)
+  #     frames.append(Frame(scan))
+  #   else:
+  #     prev_frame = frames[i - 1]
+  #     scan = data.load_scan(i)
+  #     frames.append(Frame(scan, prev_frame))
   #
-  # for i in range(max_iter):
-  #     dst_points_est = (R_est @ src_points.T).T + t_est
+  #   if i >= 1:
+  #     frame_km1 = frames[i - 1]
+  #     frame_k = frames[i]
+  #     frame_km1.estimate(frame_k)
   #
-  #     radii = 0.0001
-  #     red = [1.0, 0.0, 0.0]
-  #     green = [0.0, 1.0, 0.0]
-  #     blue = [0.0, 0.0, 1.0]
+  #     points_km1 = frame_km1.points()
+  #     points_k = frame_k.points()
+  #
   #     rr.set_time("iteration", sequence=i)
-  #     rr.log("src-points", rr.Points3D(src_points, colors=red, radii=radii))
-  #     rr.log("dst-points", rr.Points3D(dst_points, colors=green, radii=radii))
-  #     rr.log("dst_est-points", rr.Points3D(dst_points_est, colors=blue, radii=radii))
-  #
-  #     distances, indicies = tree.query(dst_points_est)
-  #     threshold = np.std(distances) * 2.0
-  #     distances = distances.tolist()
-  #
-  #     gnd = []
-  #     est = []
-  #     for i, index in enumerate(indicies):
-  #         if threshold < distances[i]:
-  #             gnd.append(dst_points[index])
-  #             est.append(dst_points_est[i])
-  #     N = len(gnd)
-  #     gnd = np.array(gnd)
-  #     est = np.array(est)
-  #
-  #     jacobians = []
-  #     residuals = []
-  #     for i in range(N):
-  #         residuals.append(gnd[i] - est[i])
-  #         J = np.zeros((3, 6))
-  #         J[0:3, 0:3] = -1.0 * np.eye(3)
-  #         J[0:3, 3:6] = R_est @ hat(est[i])
-  #         jacobians.append(J)
-  #     J = np.vstack(jacobians)
-  #     r = np.hstack(residuals)
-  #     cost = 0.5 * (r.T @ r)
-  #     print(f"{cost=:.2e}")
-  #
-  #     H = J.T @ J
-  #     H += 1e4 * np.eye(6)
-  #     b = -1.0 * J.T @ r
-  #
-  #     c, low = scipy.linalg.cho_factor(H)
-  #     dx = scipy.linalg.cho_solve((c, low), b)
-  #
-  #     t_est += dx[0:3]
-  #     # R_est = R_est @ Exp(dx[3:6])
-  #
-  #     q_est = rot2quat(R_est)
-  #     dq = quat_delta(dx[3:6])
-  #     q_new = quat_mul(q_est, dq)
-  #     q_new = quat_normalize(q_new)
-  #     R_est = quat2rot(q_new)
+  #     rr.log("src-points", rr.Points3D(points_km1, colors=blue, radii=radii))
+  #     rr.log("dst-points", rr.Points3D(points_k, colors=green, radii=radii))
+  #     rr.log("points", rr.Points3D(points_k, colors=red, radii=radii))

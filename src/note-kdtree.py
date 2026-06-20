@@ -1,4 +1,4 @@
-import unittest
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -61,25 +61,23 @@ def kdtree_nn(root, target):
   return (best[0], best[1])
 
 
-class TestKDTree(unittest.TestCase):
-  """Test KDTree"""
-  def test_kdtree(self):
-    points = np.array([
+if __name__ == "__main__":
+  points = np.array([
       [1.0, 2.0],
       [3.0, 5.0],
       [4.0, 2.0],
       [7.0, 8.0],
       [8.0, 1.0],
       [9.0, 6.0],
-    ])
+  ])
 
-    target_point = [5.0, 3.0]
-    kdtree = kdtree_build(points)
-    best_point, _ = kdtree_nn(kdtree, target_point)
+  target_point = [5.0, 3.0]
+  kdtree = kdtree_build(points)
+  best_point, _ = kdtree_nn(kdtree, target_point)
 
-    debug = False
-    if debug:
-      plt.plot(points[:, 0], points[:, 1], "b.")
-      plt.plot(target_point[0], target_point[1], "ko")
-      plt.plot(best_point[0], best_point[1], "rx")
-      plt.show()
+  debug = True
+  if debug:
+    plt.plot(points[:, 0], points[:, 1], "b.")
+    plt.plot(target_point[0], target_point[1], "ko")
+    plt.plot(best_point[0], best_point[1], "rx")
+    plt.show()

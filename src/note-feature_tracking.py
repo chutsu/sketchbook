@@ -1,3 +1,6 @@
+import os
+
+import cv2
 import scipy
 import numpy as np
 
@@ -200,46 +203,45 @@ def shi_tomasi_corner(image_gray, **kwargs):
   return filtered_corners
 
 
-  # @unittest.skip("Fix Me!")
-  # def test_harris_corner(self):
-  #   """Test harris_corner()"""
-  #   img_file = "./test_data/images/checker_board-5x5.png"
-  #   img_path = os.path.join(SCRIPT_DIR, img_file)
-  #   img  = cv2.imread(img_path)
-  #   img_gray  = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-  #   corners = harris_corner(img_gray)
-  #
-  #   assert img is not None
-  #   for corner in corners:
-  #     x = int(corner[0])
-  #     y = int(corner[1])
-  #     img[x, y] = [0, 0, 255]
-  #
-  #   debug = False
-  #   if debug:
-  #     cv2.imshow("Image", img)
-  #     cv2.waitKey(0)
-  #
-  #   self.assertTrue(len(corners))
-  #
-  # @unittest.skip("Fix Me!")
-  # def test_shi_tomasi_corner(self):
-  #   """Test shi_tomasi_corner()"""
-  #   img_file = "./test_data/images/checker_board-5x5.png"
-  #   img_path = os.path.join(SCRIPT_DIR, img_file)
-  #   img = cv2.imread(img_path)
-  #   assert img is not None
-  #
-  #   img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-  #   corners = shi_tomasi_corner(img_gray)
-  #   for corner in corners:
-  #     x, y = corner
-  #     img[x, y] = [0, 0, 255]
-  #
-  #   # print(f"num corners: {len(corners)}")
-  #   debug = False
-  #   if debug:
-  #     cv2.imshow("Image", img)
-  #     cv2.waitKey(0)
-  #
-  #   self.assertTrue(len(corners))
+def test_harris_corner(self):
+  """Test harris_corner()"""
+  img_file = "./test_data/images/checker_board-5x5.png"
+  img_path = os.path.join(SCRIPT_DIR, img_file)
+  img  = cv2.imread(img_path)
+  img_gray  = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+  corners = harris_corner(img_gray)
+
+  assert img is not None
+  for corner in corners:
+    x = int(corner[0])
+    y = int(corner[1])
+    img[x, y] = [0, 0, 255]
+
+  debug = False
+  if debug:
+    cv2.imshow("Image", img)
+    cv2.waitKey(0)
+
+  self.assertTrue(len(corners))
+
+
+def test_shi_tomasi_corner(self):
+  """Test shi_tomasi_corner()"""
+  img_file = "./test_data/images/checker_board-5x5.png"
+  img_path = os.path.join(SCRIPT_DIR, img_file)
+  img = cv2.imread(img_path)
+  assert img is not None
+
+  img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+  corners = shi_tomasi_corner(img_gray)
+  for corner in corners:
+    x, y = corner
+    img[x, y] = [0, 0, 255]
+
+  # print(f"num corners: {len(corners)}")
+  debug = False
+  if debug:
+    cv2.imshow("Image", img)
+    cv2.waitKey(0)
+
+  self.assertTrue(len(corners))
