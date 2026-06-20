@@ -1,34 +1,6 @@
-import unittest
-from math import atan
-
+#!/usr/bin/env python3
 import numpy as np
-from numpy import eye
-from numpy import pi
-from numpy import sqrt
 import matplotlib.pyplot as plt
-
-
-def compl_filter(gyro, accel, dt, roll, pitch):
-  """
-  A simple complementary filter that uses `gyro` and `accel` measurements to
-  estimate the attitude in `roll` and `pitch`. Where `dt` is the update
-  rate of the `gyro` measurements in seconds.
-  """
-  # Calculate pitch and roll using gyroscope
-  wx, wy, _ = gyro
-  gyro_roll = (wx * dt) + roll
-  gyro_pitch = (wy * dt) + pitch
-
-  # Calculate pitch and roll using accelerometer
-  ax, ay, az = accel
-  accel_roll = (atan(ay / sqrt(ax * ay + az * az))) * 180.0 / pi
-  accel_pitch = (atan(ax / sqrt(ay * ay + az * az))) * 180.0 / pi
-
-  # Complimentary filter
-  pitch = (0.98 * gyro_pitch) + (0.02 * accel_pitch)
-  roll = (0.98 * gyro_roll) + (0.02 * accel_roll)
-
-  return (roll, pitch)
 
 
 class KalmanFilter:
@@ -38,9 +10,9 @@ class KalmanFilter:
     self.F = kwargs["F"]
     self.H = kwargs["H"]
     self.B = kwargs.get("B", np.array([0]))
-    self.Q = kwargs.get("Q", eye(self.F.shape[1]))
-    self.R = kwargs.get("R", eye(self.H.shape[0]))
-    self.P = kwargs.get("P", eye(self.F.shape[1]))
+    self.Q = kwargs.get("Q", np.eye(self.F.shape[1]))
+    self.R = kwargs.get("R", np.eye(self.H.shape[0]))
+    self.P = kwargs.get("P", np.eye(self.F.shape[1]))
 
   def predict(self, u=np.array([0.0])):
     """Predict"""
@@ -50,7 +22,7 @@ class KalmanFilter:
 
   def update(self, z):
     """Measurement Update"""
-    I = eye(self.F.shape[1])
+    I = np.eye(self.F.shape[1])
     y = z - self.H @ self.x
     S = self.R + self.H @ self.P @ self.H.T
     K = self.P @ self.H.T @ np.linalg.inv(S)
@@ -76,23 +48,26 @@ if __name__ == "__main__":
   x0 = np.array([rx, ry, vx, vy, ax, ay])
 
   # -- Setup Kalman Filter
-  # yapf:disable
   # ---- Transition Matrix
+  # yapf:disable
   F = np.array([[1.0, 0.0, dt, 0.0, 0.5 * dt**2, 0.0],
                 [0.0, 1.0, 0.0, dt, 0.0, 0.5 * dt**2],
-                [0.0, 0.0, 1.0, 0.0, dt, 0.0], [0.0, 0.0, 0.0, 1.0, 0.0, dt],
+                [0.0, 0.0, 1.0, 0.0, dt, 0.0],
+                [0.0, 0.0, 0.0, 1.0, 0.0, dt],
                 [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
                 [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])
+  # yapf:enable
   # ---- Measurement Matrix
+  # yapf:disable
   H = np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0, 0.0, 0.0]])
+  # yapf:enable
   # ---- Input Matrix
   B = np.array([0])
   # ---- Process Noise Matrix
-  Q = 0.1 * eye(6)
+  Q = 0.1 * np.eye(6)
   # ---- Measurement Noise Matrix
-  R = 10.0 * eye(2)
-  # yapf:enable
+  R = 10.0 * np.eye(2)
   # ---- Kalman Filter
   kwargs = {"x0": x0, "F": F, "H": H, "B": B, "Q": Q, "R": R}
   kf = KalmanFilter(**kwargs)
@@ -142,7 +117,7 @@ if __name__ == "__main__":
     t += dt
 
   # Plot X-Y
-  debug = False
+  debug = True
   if debug:
     plt.plot(gnd_rx, gnd_ry, "k--", label="Ground-Truth")
     plt.plot(meas_zx, meas_zy, "r.", label="Measurement")
