@@ -117,13 +117,11 @@ if __name__ == "__main__":
     t += dt
 
   # Plot X-Y
-  debug = True
-  if debug:
-    plt.plot(gnd_rx, gnd_ry, "k--", label="Ground-Truth")
-    plt.plot(meas_zx, meas_zy, "r.", label="Measurement")
-    plt.plot(est_rx, est_ry, "b-", label="Estimate")
-    plt.axis("equal")
-    plt.legend(loc=0)
-    plt.xlabel("x [m]")
-    plt.ylabel("y [m]")
-    plt.show()
+  plt.plot(gnd_rx, gnd_ry, "k--", label="Ground-Truth")
+  plt.plot(meas_zx, meas_zy, "r.", label="Measurement")
+  plt.plot(est_rx, est_ry, "b-", label="Estimate")
+  plt.axis("equal")
+  plt.legend(loc=0)
+  plt.xlabel("x [m]")
+  plt.ylabel("y [m]")
+  plt.show()

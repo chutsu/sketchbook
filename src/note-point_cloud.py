@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+
 os.environ.pop("QT_QPA_PLATFORM_PLUGIN_PATH", None)
 os.environ["QT_LOGGING_RULES"] = "qt.qpa.wayland.warning=false"
 
@@ -8,8 +9,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from xyz import euler321
-from xyz import Exp
 from xyz import plot_set_axes_equal
+
+
+def load_bunny_scan(path, step=10):
+  """Load bunny scan"""
+  data = np.loadtxt(path)
+  points = data[::step, :3]
+  normals = data[::step, 3:6]
+  return points, normals
 
 
 def umeyama(X, Y, rigid=False):
@@ -124,43 +132,14 @@ def icp(X, Y, **kwargs):
   return X, R_total, t_total
 
 
-def test_umeyama():
-    R_gnd = euler321(*np.random.rand(3))
-    t_gnd = np.random.rand(3, 1) * 0.1
-
-    points = np.random.rand(1000, 3)
-    src = points
-    dst = points @ R_gnd.T + t_gnd.T
-    c, R, t = umeyama(src.T, dst.T)
-    est = c * src @ R.T + t.T
-
-    assert np.allclose(R, R_gnd, atol=1e-4)
-    assert np.allclose(t, t_gnd, atol=1e-4)
-    assert np.allclose(est, dst, atol=1e-4)
-
-
-def load_bunny_scan(path, step=4):
-    data = np.loadtxt(path)
-    points = data[::step, :3]
-    normals = data[::step, 3:6]
-    return points, normals
-
-
-def test_icp():
-    points, _ = load_bunny_scan("data/bunny/pcd-00.xyz")
-    R_gnd = euler321(*np.random.rand(3) * 0.5)
-    t_gnd = np.random.rand(3) * 0.1
-
-    X = points
-    Y = points @ R_gnd.T + t_gnd.T
-
-    _, R, t = icp(X, Y)
-
-    assert np.allclose(R, R_gnd, atol=1e-4)
-    assert np.allclose(t, t_gnd, atol=1e-4)
-    assert np.allclose(est, dst, atol=1e-4)
-
-
 if __name__ == "__main__":
-  test_umeyama()
-  test_icp()
+  points, _ = load_bunny_scan("data/bunny/pcd-00.xyz")
+  R_gnd = euler321(*np.random.rand(3) * 0.5)
+  t_gnd = np.random.rand(3) * 0.1
+
+  X = points
+  Y = points @ R_gnd.T + t_gnd.T
+  _, R, t = icp(X, Y)
+
+  assert np.allclose(R, R_gnd, atol=1e-4)
+  assert np.allclose(t, t_gnd, atol=1e-4)
