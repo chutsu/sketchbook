@@ -2,6 +2,9 @@
 data/MNIST
 data/bunny
 
+# C
+opengl/build
+
 # Docs
 docs/_build
 docs/build
