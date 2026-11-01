@@ -8,6 +8,7 @@ mostly robotics, computer vision, and machine learning.
 - `notes/` - Python notes and small implementations.
 - `leet/` - LeetCode-style problems and algorithm notes.
 - `opengl/` - Standalone OpenGL/GLFW rendering module.
+- `http/` - Standalone single-header HTTP/WebSocket + TCP library.
 - `docs/` - Notes rendered as a static site.
 - `scripts/` - Misc utility and setup scripts.
 - `archive/` - Older, unmaintained experiments.

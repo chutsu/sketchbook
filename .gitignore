@@ -4,6 +4,7 @@ data/bunny
 
 # C
 opengl/build
+http/build
 
 # Docs
 docs/_build
