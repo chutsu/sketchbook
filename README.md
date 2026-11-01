@@ -5,7 +5,7 @@ mostly robotics, computer vision, and machine learning.
 
 ## Layout
 
-- `src/` - Python notes and small implementations.
+- `notes/` - Python notes and small implementations.
 - `leet/` - LeetCode-style problems and algorithm notes.
 - `opengl/` - Standalone OpenGL/GLFW rendering module.
 - `docs/` - Notes rendered as a static site.
